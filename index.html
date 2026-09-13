@@ -171,7 +171,11 @@
   .hero-copy p{ margin-top:26px; font-size:clamp(1.02rem, 1.4vw, 1.18rem); color:var(--ink-dim); max-width:52ch; }
   .hero-actions{ margin-top:36px; display:flex; gap:16px; flex-wrap:wrap; align-items:center; }
 
-  .hero-gallery{ display:grid; grid-template-columns:1.3fr 1fr; grid-template-rows:auto auto; gap:14px; }
+  .hero-gallery{
+    position:relative;
+    display:grid; grid-template-columns:1.3fr 1fr; grid-template-rows:auto auto;
+    gap:30px; padding:14px 6px 34px 34px;
+  }
   .frame{
     position:relative; border-radius:var(--radius); overflow:hidden; border:1px solid var(--line);
     background:
@@ -189,8 +193,25 @@
     background:rgba(10,9,8,0.55); border:1px solid var(--line); padding:5px 10px;
     border-radius:var(--radius); backdrop-filter:blur(6px); z-index:2;
   }
-  .frame-featured{ grid-row:1 / 3; aspect-ratio:3 / 4; }
-  .frame-small{ aspect-ratio:4 / 3; }
+  .frame-featured{
+    grid-row:1 / 3; aspect-ratio:3 / 4;
+    transform:rotate(-2.5deg) translate(-6px, -6px);
+    box-shadow:0 20px 44px -18px rgba(0,0,0,0.55);
+    z-index:2;
+  }
+  .frame-small{
+    aspect-ratio:4 / 3;
+    box-shadow:0 16px 34px -16px rgba(0,0,0,0.5);
+  }
+  .frame-small:nth-of-type(2){
+    transform:rotate(3.5deg) translate(18px, -14px);
+    z-index:3;
+  }
+  .frame-small:nth-of-type(3){
+    transform:rotate(-4deg) translate(-2px, 22px);
+    z-index:1;
+  }
+  .frame:hover{ transform:scale(1.02) rotate(0deg); transition:transform .35s var(--ease); z-index:4; }
 
   /* TERMÉKEK */
   .products{ background:#0d0c0a; border-top:1px solid var(--line-soft); }
@@ -248,6 +269,30 @@
   .upload-remove:hover{ border-color:var(--gold); color:var(--gold-bright); }
   .upload-remove svg{ width:14px; height:14px; }
   .upload-note{ margin-top:12px; font-size:0.8rem; color:var(--ink-faint); line-height:1.5; }
+
+  /* KAPCSOLATTARTÁS / SZÁLLÍTÁS - LENYITHATÓ PANEL */
+  .shipping-details{
+    margin-top:22px; border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--bg-raised); overflow:hidden;
+  }
+  .shipping-details summary{
+    list-style:none; cursor:pointer; padding:16px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    font-family:var(--sans); font-size:0.96rem; font-weight:600; color:var(--ink);
+    transition:background .2s var(--ease);
+  }
+  .shipping-details summary::-webkit-details-marker{ display:none; }
+  .shipping-details summary:hover{ background:var(--bg-raised-2); }
+  .shipping-details summary .chevron{
+    width:18px; height:18px; color:var(--gold); flex-shrink:0;
+    transition:transform .25s var(--ease);
+  }
+  .shipping-details[open] summary .chevron{ transform:rotate(180deg); }
+  .shipping-details[open] summary{ border-bottom:1px solid var(--line); }
+  .shipping-fields{ padding:18px; display:grid; grid-template-columns:1fr 1fr; gap:16px 14px; }
+  .shipping-fields .field-group{ padding:0; border-bottom:none; grid-column:span 1; }
+  .shipping-fields .field-group.full{ grid-column:1 / -1; }
+  @media (max-width:520px){ .shipping-fields{ grid-template-columns:1fr; } }
 
   .config-panel{ border:1px solid var(--line); border-radius:var(--radius); background:var(--bg-raised); padding:clamp(24px, 3vw, 34px); }
   .config-panel h3{ font-size:1.2rem; font-weight:500; }
@@ -345,7 +390,10 @@
     .nav-toggle{ display:flex; }
     .header-right .btn-primary{ padding:9px 16px; font-size:0.86rem; }
     .hero .wrap{ grid-template-columns:1fr; }
-    .hero-gallery{ order:-1; }
+    .hero-gallery{ order:-1; padding:8px 6px 24px 18px; }
+    .frame-featured{ transform:rotate(-1.2deg); }
+    .frame-small:nth-of-type(2){ transform:rotate(1.5deg) translate(6px, -6px); }
+    .frame-small:nth-of-type(3){ transform:rotate(-1.8deg) translate(-2px, 10px); }
     .product-grid{ grid-template-columns:1fr 1fr; }
     .story .wrap{ grid-template-columns:1fr; }
     .config-grid{ grid-template-columns:1fr; }
@@ -564,6 +612,40 @@
             <label class="field-label" for="customNotes">Egyedi változtatás, saját üzenet</label>
             <textarea id="customNotes" class="text-input" rows="4" placeholder="pl. Kérjük, csak a középső két ember legyen a szobron, vagy egyéb egyedi kérés..." style="resize:vertical; font-family:var(--sans);"></textarea>
           </div>
+
+          <details class="shipping-details" id="shippingDetails">
+            <summary>
+              <span>Kapcsolattartási adatok és szállítási cím</span>
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9l6 6 6-6"/></svg>
+            </summary>
+            <div class="shipping-fields">
+              <div class="field-group full">
+                <label class="field-label" for="shipName">Teljes név *</label>
+                <input type="text" id="shipName" class="text-input" placeholder="pl. Kovács Anna" autocomplete="name">
+                <p class="field-error" id="shipNameError">Add meg a teljes neved.</p>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="shipPhone">Telefonszám *</label>
+                <input type="tel" id="shipPhone" class="text-input" placeholder="pl. +36 20 123 4567" autocomplete="tel">
+                <p class="field-error" id="shipPhoneError">Add meg a telefonszámod.</p>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="shipZip">Irányítószám *</label>
+                <input type="text" id="shipZip" class="text-input" placeholder="pl. 1051" inputmode="numeric" autocomplete="postal-code">
+                <p class="field-error" id="shipZipError">Add meg az irányítószámot.</p>
+              </div>
+              <div class="field-group full">
+                <label class="field-label" for="shipCity">Település *</label>
+                <input type="text" id="shipCity" class="text-input" placeholder="pl. Budapest" autocomplete="address-level2">
+                <p class="field-error" id="shipCityError">Add meg a településed.</p>
+              </div>
+              <div class="field-group full">
+                <label class="field-label" for="shipAddress">Utca, házszám, emelet/ajtó *</label>
+                <input type="text" id="shipAddress" class="text-input" placeholder="pl. Fő utca 12., 3. emelet 2. ajtó" autocomplete="street-address">
+                <p class="field-error" id="shipAddressError">Add meg a pontos címed.</p>
+              </div>
+            </div>
+          </details>
         </div>
 
         <div class="config-panel reveal">
@@ -851,6 +933,12 @@
     var emailInput    = document.getElementById('customerEmail');
     var emailError    = document.getElementById('emailError');
     var customNotesEl = document.getElementById('customNotes');
+    var shippingDetailsEl = document.getElementById('shippingDetails');
+    var shipNameEl    = document.getElementById('shipName');
+    var shipPhoneEl   = document.getElementById('shipPhone');
+    var shipZipEl     = document.getElementById('shipZip');
+    var shipCityEl    = document.getElementById('shipCity');
+    var shipAddressEl = document.getElementById('shipAddress');
 
     function formatHuf(n){ return n.toLocaleString('hu-HU') + ' Ft'; }
 
@@ -912,6 +1000,29 @@
         emailError.classList.remove('is-visible');
       }
 
+      var shippingFields = [
+        { input: shipNameEl,    error: document.getElementById('shipNameError') },
+        { input: shipPhoneEl,   error: document.getElementById('shipPhoneError') },
+        { input: shipZipEl,     error: document.getElementById('shipZipError') },
+        { input: shipCityEl,    error: document.getElementById('shipCityError') },
+        { input: shipAddressEl, error: document.getElementById('shipAddressError') }
+      ];
+      var shippingHasError = false;
+      shippingFields.forEach(function(f){
+        if(!f.input.value.trim()){
+          f.input.classList.add('has-error');
+          f.error.classList.add('is-visible');
+          shippingHasError = true;
+        } else {
+          f.input.classList.remove('has-error');
+          f.error.classList.remove('is-visible');
+        }
+      });
+      if(shippingHasError){
+        shippingDetailsEl.open = true;
+        hasError = true;
+      }
+
       if(hasError){
         orderFeedback.classList.remove('is-visible');
         return;
@@ -959,7 +1070,12 @@
           total:          formatHuf(total),
           photo_name:     uploadedFile.name,
           photo_url:      photoUrl,
-          custom_notes:   customNotesEl.value.trim() || 'Nincs egyedi kérés'
+          custom_notes:   customNotesEl.value.trim() || 'Nincs egyedi kérés',
+          shipping_name:    shipNameEl.value.trim(),
+          shipping_phone:   shipPhoneEl.value.trim(),
+          shipping_zip:     shipZipEl.value.trim(),
+          shipping_city:    shipCityEl.value.trim(),
+          shipping_address: shipAddressEl.value.trim()
         };
 
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
