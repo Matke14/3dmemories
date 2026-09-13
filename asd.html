@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Memories — Kerülj közelebb az emlékeidhez</title>
+<meta name="description" content="Egyedi, 3D nyomtatott emléktárgyak fotóid alapján. Családi és páros emlékek, kézzel finomítva.">
+
+<!-- Google Fonts: Fraunces (display serif, warm & characterful) + Manrope (clean geometric sans) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<style>
+  :root{
+    --bg:            #0a0908;
+    --bg-raised:     #131110;
+    --bg-raised-2:   #1b1815;
+    --line:          rgba(242,237,230,0.12);
+    --line-soft:     rgba(242,237,230,0.07);
+
+    --ink:           #f3ede4;
+    --ink-dim:       #b4aa9d;
+    --ink-faint:     #7d766c;
+
+    --gold:          #c8a565;
+    --gold-bright:   #e3c184;
+    --gold-dim:      rgba(200,165,101,0.15);
+
+    --error:         #e2665a;
+
+    --serif: "Fraunces", Georgia, "Times New Roman", serif;
+    --sans:  "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    --container: 1180px;
+    --radius: 3px;
+
+    --ease: cubic-bezier(.22,.7,.2,1);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *,*::before,*::after{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  img,svg{ display:block; max-width:100%; }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--gold-dim); color:var(--gold-bright); }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+
+  .wrap{
+    max-width:var(--container);
+    margin:0 auto;
+    padding:0 clamp(20px, 4vw, 48px);
+  }
+
+  h1,h2,h3{
+    font-family:var(--serif);
+    font-weight:500;
+    line-height:1.12;
+    margin:0;
+    color:var(--ink);
+    letter-spacing:-0.01em;
+  }
+  p{ margin:0; }
+
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:2000;
+    opacity:0.035;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* HEADER */
+  .site-header{
+    position:sticky; top:0; z-index:1000;
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    padding:18px clamp(20px, 4vw, 48px);
+    background:rgba(10,9,8,0.78);
+    backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);
+    border-bottom:1px solid var(--line-soft);
+    transition:padding .3s var(--ease), background .3s var(--ease);
+  }
+  .site-header.is-scrolled{
+    padding-top:12px; padding-bottom:12px;
+    background:rgba(10,9,8,0.94);
+    border-bottom-color:var(--line);
+  }
+  .brand{
+    font-family:var(--serif); font-size:1.28rem; font-weight:500; letter-spacing:0.01em;
+    color:var(--ink); white-space:nowrap; display:flex; align-items:baseline; gap:2px;
+  }
+  .brand em{ font-style:italic; color:var(--gold-bright); font-weight:500; }
+
+  .main-nav{ display:flex; align-items:center; gap:clamp(18px, 2.6vw, 38px); }
+  .main-nav a{
+    font-size:0.94rem; color:var(--ink-dim); position:relative; padding:4px 0;
+    transition:color .25s var(--ease);
+  }
+  .main-nav a::after{
+    content:""; position:absolute; left:0; right:100%; bottom:-2px; height:1px;
+    background:var(--gold); transition:right .3s var(--ease);
+  }
+  .main-nav a:hover{ color:var(--ink); }
+  .main-nav a:hover::after{ right:0; }
+
+  .header-right{ display:flex; align-items:center; gap:18px; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-family:var(--sans); font-size:0.92rem; font-weight:600;
+    padding:11px 22px; border-radius:var(--radius); border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .25s var(--ease), background .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease);
+    white-space:nowrap;
+  }
+  .btn-primary{ background:var(--gold); color:#151109; }
+  .btn-primary:hover{ background:var(--gold-bright); transform:translateY(-1px); }
+  .btn-outline{ background:transparent; border-color:var(--line); color:var(--ink); }
+  .btn-outline:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .btn-full{ width:100%; }
+  .btn[disabled]{ opacity:0.55; cursor:not-allowed; transform:none !important; }
+
+  .nav-toggle{
+    display:none; width:38px; height:38px; background:none;
+    border:1px solid var(--line); border-radius:var(--radius); color:var(--ink);
+    align-items:center; justify-content:center; cursor:pointer;
+  }
+  .nav-toggle svg{ width:18px; height:18px; }
+
+  section{ padding:clamp(64px, 9vw, 128px) 0; }
+  .section-head{ max-width:640px; margin-bottom:clamp(36px, 5vw, 64px); }
+  .section-head .kicker{
+    display:block; font-family:var(--serif); font-style:italic; font-size:1.02rem;
+    color:var(--gold-bright); margin-bottom:10px;
+  }
+  .section-head h2{ font-size:clamp(1.9rem, 3.4vw, 2.7rem); }
+  .section-head p{ margin-top:16px; color:var(--ink-dim); font-size:1.02rem; max-width:56ch; }
+
+  /* HERO */
+  .hero{ padding-top:clamp(72px, 11vw, 132px); padding-bottom:clamp(56px, 8vw, 96px); }
+  .hero .wrap{
+    display:grid; grid-template-columns:1.05fr 0.95fr;
+    gap:clamp(40px, 6vw, 90px); align-items:center;
+  }
+  .hero-copy .kicker{
+    display:inline-block; font-family:var(--serif); font-style:italic;
+    color:var(--gold-bright); font-size:1.05rem; margin-bottom:18px;
+  }
+  .hero-copy h1{ font-size:clamp(2.4rem, 5vw, 4.1rem); letter-spacing:-0.015em; }
+  .hero-copy p{ margin-top:26px; font-size:clamp(1.02rem, 1.4vw, 1.18rem); color:var(--ink-dim); max-width:52ch; }
+  .hero-actions{ margin-top:36px; display:flex; gap:16px; flex-wrap:wrap; align-items:center; }
+
+  .hero-gallery{ display:grid; grid-template-columns:1.3fr 1fr; grid-template-rows:auto auto; gap:14px; }
+  .frame{
+    position:relative; border-radius:var(--radius); overflow:hidden; border:1px solid var(--line);
+    background:
+      radial-gradient(140% 140% at 20% 15%, rgba(200,165,101,0.16), transparent 60%),
+      linear-gradient(160deg, var(--bg-raised-2), var(--bg-raised) 60%, #0d0b0a);
+  }
+  .frame::after{
+    content:""; position:absolute; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+  .frame img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:1; }
+  .frame-tag{
+    position:absolute; left:14px; bottom:14px; font-size:0.78rem; color:var(--ink-dim);
+    background:rgba(10,9,8,0.55); border:1px solid var(--line); padding:5px 10px;
+    border-radius:var(--radius); backdrop-filter:blur(6px); z-index:2;
+  }
+  .frame-featured{ grid-row:1 / 3; aspect-ratio:3 / 4; }
+  .frame-small{ aspect-ratio:4 / 3; }
+
+  /* TERMÉKEK */
+  .products{ background:var(--bg); border-top:1px solid var(--line-soft); }
+  .product-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; }
+  .product-card{ border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--bg-raised); }
+  .product-card .frame{ border:none; border-radius:0; aspect-ratio:1/1; }
+  .product-card-body{ padding:20px 22px 24px; }
+  .product-card-body h3{ font-size:1.15rem; font-weight:500; }
+  .product-card-body p{ margin-top:8px; color:var(--ink-dim); font-size:0.94rem; }
+  .product-card-price{ margin-top:14px; font-family:var(--serif); font-style:italic; color:var(--gold-bright); font-size:1.02rem; }
+
+  /* TÖRTÉNETÜNK */
+  .story{ background:var(--bg-raised); border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
+  .story .wrap{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:clamp(36px,6vw,80px); }
+  .story-intro p{ color:var(--ink-dim); margin-top:18px; font-size:1.02rem; max-width:44ch; }
+  .steps{ display:flex; flex-direction:column; }
+  .step{ display:grid; grid-template-columns:52px 1fr; gap:20px; padding:26px 0; }
+  .step + .step{ border-top:1px solid var(--line); }
+  .step:first-child{ padding-top:0; }
+  .step:last-child{ padding-bottom:0; }
+  .step-num{ font-family:var(--serif); font-style:italic; font-size:1.6rem; color:var(--gold); line-height:1; }
+  .step-body h3{ font-size:1.12rem; font-weight:500; margin-bottom:8px; }
+  .step-body p{ color:var(--ink-dim); font-size:0.97rem; }
+
+  /* KONFIGURÁTOR */
+  .configurator{ background:var(--bg); }
+  .config-grid{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(32px,5vw,64px); align-items:start; }
+
+  .upload-zone{
+    position:relative; border:1.5px dashed var(--line); border-radius:var(--radius);
+    padding:40px 24px; text-align:center; background:var(--bg-raised);
+    transition:border-color .25s var(--ease), background .25s var(--ease); cursor:pointer;
+  }
+  .upload-zone:hover, .upload-zone.is-dragover{ border-color:var(--gold); background:var(--bg-raised-2); }
+  .upload-zone.has-error{ border-color:var(--error); }
+  .upload-zone input[type="file"]{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .upload-icon{ width:44px; height:44px; margin:0 auto 18px; color:var(--gold); opacity:0.85; }
+  .upload-zone h3{ font-size:1.05rem; font-weight:600; font-family:var(--sans); color:var(--ink); }
+  .upload-zone p{ margin-top:8px; font-size:0.88rem; color:var(--ink-faint); }
+
+  .upload-preview{
+    margin-top:18px; display:none; align-items:center; gap:14px; padding:12px 14px;
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--bg-raised); text-align:left;
+  }
+  .upload-preview.is-visible{ display:flex; }
+  .upload-preview img{ width:56px; height:56px; object-fit:cover; border-radius:var(--radius); border:1px solid var(--line); flex-shrink:0; }
+  .upload-preview-info{ flex:1; min-width:0; }
+  .upload-preview-info .fname{ font-size:0.9rem; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .upload-preview-info .fmeta{ font-size:0.78rem; color:var(--ink-faint); margin-top:2px; }
+  .upload-remove{
+    flex-shrink:0; width:30px; height:30px; border-radius:50%; border:1px solid var(--line);
+    background:transparent; color:var(--ink-dim); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:border-color .2s, color .2s;
+  }
+  .upload-remove:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .upload-remove svg{ width:14px; height:14px; }
+  .upload-note{ margin-top:12px; font-size:0.8rem; color:var(--ink-faint); line-height:1.5; }
+
+  .config-panel{ border:1px solid var(--line); border-radius:var(--radius); background:var(--bg-raised); padding:clamp(24px, 3vw, 34px); }
+  .config-panel h3{ font-size:1.2rem; font-weight:500; }
+  .base-price-row{
+    display:flex; justify-content:space-between; align-items:baseline; margin-top:6px;
+    padding-bottom:20px; border-bottom:1px solid var(--line);
+  }
+  .base-price-row span:first-child{ color:var(--ink-dim); font-size:0.94rem; }
+  .base-price-row span:last-child{ font-family:var(--serif); font-style:italic; color:var(--ink); font-size:1.05rem; }
+
+  .field-group{ padding:18px 0; border-bottom:1px solid var(--line-soft); }
+  .field-group label.field-label{ display:block; font-size:0.9rem; color:var(--ink-dim); margin-bottom:9px; }
+  .text-input, .select-input{
+    width:100%; background:var(--bg); border:1px solid var(--line); border-radius:var(--radius);
+    color:var(--ink); font-family:var(--sans); font-size:0.96rem; padding:11px 13px;
+    transition:border-color .2s var(--ease);
+  }
+  .text-input::placeholder{ color:var(--ink-faint); }
+  .text-input:focus, .select-input:focus{ border-color:var(--gold); outline:none; }
+  .text-input.has-error, .select-input.has-error{ border-color:var(--error); }
+  .select-input{
+    appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a565' stroke-width='1.6'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 12px center; background-size:16px;
+    padding-right:36px; cursor:pointer;
+  }
+  .field-error{ display:none; margin-top:8px; font-size:0.82rem; color:var(--error); }
+  .field-error.is-visible{ display:block; }
+
+  .option-list{ display:flex; flex-direction:column; }
+  .option-row{ display:flex; align-items:center; gap:14px; padding:14px 0; cursor:pointer; }
+  .option-row + .option-row{ border-top:1px solid var(--line-soft); }
+  .option-row input[type="checkbox"]{
+    appearance:none; -webkit-appearance:none; width:19px; height:19px; flex-shrink:0;
+    border:1px solid var(--line); border-radius:3px; background:var(--bg); position:relative;
+    cursor:pointer; transition:border-color .2s, background .2s;
+  }
+  .option-row input[type="checkbox"]:checked{ background:var(--gold); border-color:var(--gold); }
+  .option-row input[type="checkbox"]:checked::after{
+    content:""; position:absolute; left:6px; top:2px; width:5px; height:10px;
+    border:solid #151109; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  .option-label{ flex:1; display:flex; justify-content:space-between; gap:12px; font-size:0.96rem; }
+  .option-label .opt-name{ color:var(--ink); }
+  .option-label .opt-price{ color:var(--gold-bright); white-space:nowrap; }
+
+  .config-total{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-top:24px; padding-top:20px; border-top:1px solid var(--line);
+  }
+  .config-total span:first-child{ font-size:0.98rem; color:var(--ink-dim); }
+  .config-total .total-amount{ font-family:var(--serif); font-size:1.9rem; color:var(--gold-bright); font-style:italic; }
+
+  .config-panel .btn{ margin-top:24px; }
+  .order-feedback{
+    margin-top:14px; font-size:0.9rem; color:var(--gold-bright);
+    opacity:0; transform:translateY(4px); transition:opacity .3s var(--ease), transform .3s var(--ease);
+    text-align:center;
+  }
+  .order-feedback.is-visible{ opacity:1; transform:translateY(0); }
+  .order-feedback.is-error{ color:var(--error); }
+
+  /* VÉLEMÉNYEK */
+  .testimonials{ background:var(--bg-raised); border-top:1px solid var(--line-soft); }
+  .testi-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; }
+  .testi-card{ border:1px solid var(--line); border-radius:var(--radius); background:var(--bg); padding:30px 26px; position:relative; }
+  .testi-card::before{ content:""; position:absolute; top:0; left:26px; width:34px; height:2px; background:var(--gold); }
+  .stars{ display:flex; gap:4px; color:var(--gold); margin-bottom:18px; }
+  .stars svg{ width:15px; height:15px; }
+  .testi-quote{ font-family:var(--serif); font-style:italic; font-size:1.08rem; line-height:1.5; color:var(--ink); }
+  .testi-author{ margin-top:20px; font-size:0.88rem; color:var(--ink-faint); }
+
+  /* KAPCSOLAT / FOOTER */
+  .site-footer{ background:var(--bg); border-top:1px solid var(--line); padding:clamp(56px, 7vw, 88px) 0 28px; }
+  .footer-top{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:clamp(32px, 5vw, 64px); padding-bottom:44px; }
+  .footer-brand .brand{ margin-bottom:14px; }
+  .footer-brand p{ color:var(--ink-dim); font-size:0.95rem; max-width:38ch; }
+  .footer-col h4{ font-family:var(--sans); font-size:0.9rem; font-weight:700; color:var(--ink); margin-bottom:16px; }
+  .footer-col ul{ list-style:none; margin:0; padding:0; }
+  .footer-col li + li{ margin-top:12px; }
+  .footer-col a, .footer-col span{
+    font-size:0.94rem; color:var(--ink-dim); display:inline-flex; align-items:center; gap:10px;
+    transition:color .2s var(--ease);
+  }
+  .footer-col a:hover{ color:var(--gold-bright); }
+  .footer-col svg{ width:15px; height:15px; color:var(--gold); flex-shrink:0; }
+  .footer-bottom{
+    padding-top:24px; border-top:1px solid var(--line-soft);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    font-size:0.82rem; color:var(--ink-faint);
+  }
+
+  @media (max-width: 980px){
+    .main-nav{ display:none; }
+    .nav-toggle{ display:flex; }
+    .header-right .btn-primary{ padding:9px 16px; font-size:0.86rem; }
+    .hero .wrap{ grid-template-columns:1fr; }
+    .hero-gallery{ order:-1; }
+    .product-grid{ grid-template-columns:1fr 1fr; }
+    .story .wrap{ grid-template-columns:1fr; }
+    .config-grid{ grid-template-columns:1fr; }
+    .testi-grid{ grid-template-columns:1fr; }
+    .footer-top{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width: 620px){
+    .product-grid{ grid-template-columns:1fr; }
+    .footer-top{ grid-template-columns:1fr; gap:32px; }
+    .hero-gallery{ grid-template-columns:1fr 1fr; }
+  }
+
+  .mobile-nav{
+    position:fixed; inset:0 0 0 auto; width:min(320px, 80vw); height:100vh;
+    background:var(--bg-raised); border-left:1px solid var(--line); z-index:1100;
+    transform:translateX(100%); transition:transform .35s var(--ease);
+    padding:24px; display:flex; flex-direction:column; gap:6px;
+  }
+  .mobile-nav.is-open{ transform:translateX(0); }
+  .mobile-nav-close{
+    align-self:flex-end; width:36px; height:36px; border:1px solid var(--line); border-radius:var(--radius);
+    background:none; color:var(--ink); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; margin-bottom:18px;
+  }
+  .mobile-nav a{ padding:14px 4px; font-size:1.05rem; color:var(--ink-dim); border-bottom:1px solid var(--line-soft); }
+  .mobile-nav a:hover{ color:var(--gold-bright); }
+  .scrim{
+    position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1050;
+    opacity:0; pointer-events:none; transition:opacity .3s var(--ease);
+  }
+  .scrim.is-visible{ opacity:1; pointer-events:auto; }
+</style>
+</head>
+<body>
+
+  <header class="site-header" id="site-header">
+    <a href="#hero" class="brand">3D <em>Memories</em></a>
+    <nav class="main-nav" aria-label="Fő navigáció">
+      <a href="#termekek">Termékek</a>
+      <a href="#tortenetunk">Történetünk</a>
+      <a href="#velemenyek">Vélemények</a>
+      <a href="#kapcsolat">Kapcsolat</a>
+    </nav>
+    <div class="header-right">
+      <a href="#konfigurator" class="btn btn-primary">Ajánlatkérés</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menü megnyitása" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="scrim" id="scrim"></div>
+  <nav class="mobile-nav" id="mobileNav" aria-label="Mobil navigáció">
+    <button class="mobile-nav-close" id="mobileNavClose" aria-label="Menü bezárása">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+    </button>
+    <a href="#termekek">Termékek</a>
+    <a href="#tortenetunk">Történetünk</a>
+    <a href="#velemenyek">Vélemények</a>
+    <a href="#kapcsolat">Kapcsolat</a>
+    <a href="#konfigurator" class="btn btn-primary" style="margin-top:20px; justify-content:center;">Ajánlatkérés</a>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="kicker">Kézzelfogható emlékek</span>
+        <h1>Kerülj közelebb az emlékeidhez</h1>
+        <p>Egy fotó, egy közös pillanat, egy szeretett arc — mi kézzelfogható emléktárggyá formáljuk. A családod vagy a párod története egy egyedi, 3D nyomtatott alkotásban él tovább.</p>
+        <div class="hero-actions">
+          <a href="#konfigurator" class="btn btn-primary">Saját szobrom megtervezése</a>
+          <a href="#tortenetunk" class="btn btn-outline">Hogyan készül</a>
+        </div>
+      </div>
+      <div class="hero-gallery">
+        <div class="frame frame-featured">
+          <img src="1.jpg" alt="Páros emlék, LED talapzattal">
+          <span class="frame-tag">Páros emlék, LED talapzattal</span>
+        </div>
+        <div class="frame frame-small">
+          <img src="2.jpg" alt="Portré szobor">
+          <span class="frame-tag">Portré szobor</span>
+        </div>
+        <div class="frame frame-small">
+          <img src="3.jpg" alt="Családi emlék">
+          <span class="frame-tag">Családi emlék</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="products" id="termekek">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Termékeink</span>
+        <h2>Minden történethez saját forma</h2>
+        <p>Válaszd ki, melyik illik a legjobban a Ti pillanatotokhoz — a végleges formát mindig közösen finomítjuk a fotótok alapján.</p>
+      </div>
+      <div class="product-grid">
+        <article class="product-card">
+          <div class="frame"><img src="4.jpg" alt="Családi emlék"></div>
+          <div class="product-card-body">
+            <h3>Családi emlék</h3>
+            <p>Több alak egy talapzaton — a teljes családot vagy baráti kört egyetlen kompozícióban örökíti meg.</p>
+            <div class="product-card-price">14 990 Ft-tól</div>
+          </div>
+        </article>
+        <article class="product-card">
+          <div class="frame"><img src="5.jpg" alt="Páros emlék"></div>
+          <div class="product-card-body">
+            <h3>Páros emlék</h3>
+            <p>A közös pillanat két alakja — évfordulóra, esküvőre vagy egyszerűen csak úgy, mert szeretitek egymást.</p>
+            <div class="product-card-price">12 990 Ft-tól</div>
+          </div>
+        </article>
+        <article class="product-card">
+          <div class="frame"><img src="6.jpg" alt="Portré szobor"></div>
+          <div class="product-card-body">
+            <h3>Portré szobor</h3>
+            <p>Egyetlen arc, minden apró vonással — kifejezetten azoknak, akik egy meghatározó pillanatot őriznének meg.</p>
+            <div class="product-card-price">9 990 Ft-tól</div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="story" id="tortenetunk">
+    <div class="wrap">
+      <div class="story-intro">
+        <span class="kicker">Történetünk</span>
+        <h2>Fotóból formává</h2>
+        <p>Nem gyártósori terméket készítünk. Minden darab egy kézzel átnézett, finomított modellből születik, hogy a végeredmény tényleg Rátok hasonlítson — nem csak egy általános alak Rólatok.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <h3>Fotó kiválasztása</h3>
+            <p>Feltöltöd a kedvenc közös képeteket — minél tisztább az arc és a testtartás, annál élethűbb lesz a végeredmény.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <h3>Digitális modellezés</h3>
+            <p>Tervezőink kézzel finomítják a formát: az arcvonásokat, a testtartást és a közös pillanat hangulatát is megtartva.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <h3>Nyomtatás és kézi utómunka</h3>
+            <p>A 3D nyomtatás után minden darabot kézzel csiszolunk és festünk, mielőtt becsomagoljuk és útnak indítjuk.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="configurator" id="konfigurator">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Rendelés</span>
+        <h2>Állítsd össze a saját emlékedet</h2>
+        <p>Töltsd fel a fotótokat, add meg az e-mail címed és a kívánt méretet, és azonnal látod a végösszeget.</p>
+      </div>
+
+      <div class="config-grid">
+        <div>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="fileInput" accept="image/*" aria-label="Fotó feltöltése">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+            <h3>Húzd ide a fotót, vagy kattints a tallózáshoz</h3>
+            <p>JPG vagy PNG, ideálisan éles, jól megvilágított arcokkal</p>
+          </div>
+          <p class="field-error" id="uploadError">Kérjük, tölts fel egy fotót a megrendeléshez.</p>
+
+          <div class="upload-preview" id="uploadPreview">
+            <img id="previewImg" src="" alt="Feltöltött fotó előnézete">
+            <div class="upload-preview-info">
+              <div class="fname" id="previewName"></div>
+              <div class="fmeta" id="previewMeta"></div>
+            </div>
+            <button class="upload-remove" id="removeUpload" aria-label="Fotó törlése" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+            </button>
+          </div>
+
+          <p class="upload-note">A fotót biztonságosan feltöltjük, és a hozzá tartozó linket küldjük el nekünk e-mailben — így nagyobb fájlméretű képeket is nyugodtan feltölthetsz.</p>
+        </div>
+
+        <div class="config-panel">
+          <h3>Ajánlatkérés adatai</h3>
+
+          <div class="base-price-row">
+            <span>Alap szobor ára</span>
+            <span id="basePriceLabel">14 990 Ft</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="customerEmail">E-mail címed</label>
+            <input type="email" id="customerEmail" class="text-input" placeholder="pl. nev@example.com" autocomplete="email" required>
+            <p class="field-error" id="emailError">Adj meg egy érvényes e-mail címet, hogy tudjunk válaszolni.</p>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="frameSize">Képkeret / talapzat mérete</label>
+            <select id="frameSize" class="select-input">
+              <option value="10x10|0">10×10 cm — alapméret</option>
+              <option value="13x13|2000">13×13 cm (+2 000 Ft)</option>
+              <option value="16x16|4500" selected>16×16 cm (+4 500 Ft)</option>
+              <option value="20x20|7900">20×20 cm (+7 900 Ft)</option>
+              <option value="25x25|12900">25×25 cm (+12 900 Ft)</option>
+            </select>
+          </div>
+
+          <div class="option-list">
+            <label class="option-row">
+              <input type="checkbox" class="opt-checkbox" data-price="2990">
+              <span class="option-label"><span class="opt-name">LED talapzat</span><span class="opt-price">+2 990 Ft</span></span>
+            </label>
+            <label class="option-row">
+              <input type="checkbox" class="opt-checkbox" data-price="3490">
+              <span class="option-label"><span class="opt-name">Fém talapzat</span><span class="opt-price">+3 490 Ft</span></span>
+            </label>
+            <label class="option-row">
+              <input type="checkbox" class="opt-checkbox" data-price="990">
+              <span class="option-label"><span class="opt-name">Gravírozott név / egyedi felirat</span><span class="opt-price">+990 Ft</span></span>
+            </label>
+            <label class="option-row">
+              <input type="checkbox" class="opt-checkbox" data-price="1500">
+              <span class="option-label"><span class="opt-name">Díszdoboz</span><span class="opt-price">+1 500 Ft</span></span>
+            </label>
+          </div>
+
+          <div class="config-total">
+            <span>Végösszeg</span>
+            <span class="total-amount" id="totalAmount">19 490 Ft</span>
+          </div>
+
+          <button class="btn btn-primary btn-full" id="orderBtn" type="button">Ajánlatkérés elküldése</button>
+          <p class="order-feedback" id="orderFeedback"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonials" id="velemenyek">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Vélemények</span>
+        <h2>Amit ügyfeleink mondanak</h2>
+      </div>
+      <div class="testi-grid">
+        <article class="testi-card">
+          <div class="stars" aria-label="5 az 5-ből csillag">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+          </div>
+          <p class="testi-quote">"A közös fotónkból készült szoborka lett a legszebb ajándék, amit valaha kaptam."</p>
+          <p class="testi-author">Nagy Petra</p>
+        </article>
+        <article class="testi-card">
+          <div class="stars" aria-label="5 az 5-ből csillag">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+          </div>
+          <p class="testi-quote">"Gyors, gondos munka, a család minden tagja könnyes szemmel nyitotta ki a dobozt."</p>
+          <p class="testi-author">Tóth Eszter</p>
+        </article>
+        <article class="testi-card">
+          <div class="stars" aria-label="5 az 5-ből csillag">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 15l-5.6 3.1 1.4-6.3L1 8.5l6.4-.6z"/></svg>
+          </div>
+          <p class="testi-quote">"Évfordulóra rendeltem, tökéletesen visszaadta a hangulatunkat. Csak ajánlani tudom."</p>
+          <p class="testi-author">Kiss Dávid</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer" id="kapcsolat">
+    <div class="wrap">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#hero" class="brand">3D <em>Memories</em></a>
+          <p>Egyedi, 3D nyomtatott emléktárgyak fotóid alapján — kézzel finomítva, hogy tényleg Rátok hasonlítson.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Kapcsolat</h4>
+          <ul>
+            <li>
+              <a href="tel:+36300000000">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.7a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2z"/></svg>
+                +36 30 000 0000
+              </a>
+            </li>
+            <li>
+              <a href="mailto:info@3dmemories.hu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg>
+                info@3dmemories.hu
+              </a>
+            </li>
+            <li>
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/></svg>
+                Budapest
+              </span>
+            </li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Oldal</h4>
+          <ul>
+            <li><a href="#termekek">Termékek</a></li>
+            <li><a href="#tortenetunk">Történetünk</a></li>
+            <li><a href="#velemenyek">Vélemények</a></li>
+            <li><a href="#konfigurator">Ajánlatkérés</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="year"></span> 3D Memories. Minden jog fenntartva.</span>
+        <span>Készítve szeretettel, Budapesten.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  (function(){
+    "use strict";
+
+    /* ====== EMAILJS BEÁLLÍTÁSOK — ide írd be a saját adataidat ====== */
+    var EMAILJS_PUBLIC_KEY  = "9wk04obk2x_2ZTNsf";
+    var EMAILJS_SERVICE_ID  = "service_c50lhoc";
+    var EMAILJS_TEMPLATE_ID = "template_804qc42";
+    var IMGBB_API_KEY = "2147fe97daf100cc2e3f5783075d33ec";
+    /* A fotó feltöltés előbb imgbb-re megy, onnan kapott linket küldjük el
+       EmailJS-el, így nagyobb fájlok is feltölthetők (nincs base64-es
+       méretkorlát). A template-ben ezekre a változónevekre hivatkozz:
+       {{customer_email}}, {{frame_size}}, {{options}}, {{total}},
+       {{photo_name}}, {{photo_url}}. A {{photo_url}} egy sima link, amit
+       a template-ben <a href="{{photo_url}}">Fotó megtekintése</a> vagy
+       <img src="{{photo_url}}"> formában is meg lehet jeleníteni. */
+
+    if(window.emailjs){ emailjs.init(EMAILJS_PUBLIC_KEY); }
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    var header = document.getElementById('site-header');
+    function onScroll(){
+      if(window.scrollY > 12){ header.classList.add('is-scrolled'); }
+      else{ header.classList.remove('is-scrolled'); }
+    }
+    document.addEventListener('scroll', onScroll, { passive:true });
+    onScroll();
+
+    var navToggle = document.getElementById('navToggle');
+    var mobileNav = document.getElementById('mobileNav');
+    var mobileNavClose = document.getElementById('mobileNavClose');
+    var scrim = document.getElementById('scrim');
+    function openNav(){
+      mobileNav.classList.add('is-open');
+      scrim.classList.add('is-visible');
+      navToggle.setAttribute('aria-expanded','true');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeNav(){
+      mobileNav.classList.remove('is-open');
+      scrim.classList.remove('is-visible');
+      navToggle.setAttribute('aria-expanded','false');
+      document.body.style.overflow = '';
+    }
+    navToggle.addEventListener('click', openNav);
+    mobileNavClose.addEventListener('click', closeNav);
+    scrim.addEventListener('click', closeNav);
+    mobileNav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeNav); });
+
+    var uploadZone   = document.getElementById('uploadZone');
+    var uploadError  = document.getElementById('uploadError');
+    var fileInput    = document.getElementById('fileInput');
+    var uploadPreview= document.getElementById('uploadPreview');
+    var previewImg   = document.getElementById('previewImg');
+    var previewName  = document.getElementById('previewName');
+    var previewMeta  = document.getElementById('previewMeta');
+    var removeUpload = document.getElementById('removeUpload');
+    var uploadedFile = null;
+
+    function formatBytes(bytes){
+      if(bytes < 1024) return bytes + ' B';
+      if(bytes < 1024*1024) return (bytes/1024).toFixed(0) + ' KB';
+      return (bytes/(1024*1024)).toFixed(1) + ' MB';
+    }
+
+    function handleFile(file){
+      if(!file || file.type.indexOf('image/') !== 0) return;
+      uploadedFile = file;
+      uploadZone.classList.remove('has-error');
+      uploadError.classList.remove('is-visible');
+      var reader = new FileReader();
+      reader.onload = function(e){
+        previewImg.src = e.target.result;
+        previewName.textContent = file.name;
+        previewMeta.textContent = formatBytes(file.size);
+        uploadPreview.classList.add('is-visible');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    fileInput.addEventListener('change', function(e){
+      if(e.target.files && e.target.files[0]){ handleFile(e.target.files[0]); }
+    });
+    ['dragenter','dragover'].forEach(function(evt){
+      uploadZone.addEventListener(evt, function(e){
+        e.preventDefault(); e.stopPropagation();
+        uploadZone.classList.add('is-dragover');
+      });
+    });
+    ['dragleave','drop'].forEach(function(evt){
+      uploadZone.addEventListener(evt, function(e){
+        e.preventDefault(); e.stopPropagation();
+        uploadZone.classList.remove('is-dragover');
+      });
+    });
+    uploadZone.addEventListener('drop', function(e){
+      var dt = e.dataTransfer;
+      if(dt && dt.files && dt.files[0]){ handleFile(dt.files[0]); }
+    });
+    removeUpload.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      uploadedFile = null;
+      fileInput.value = '';
+      previewImg.src = '';
+      uploadPreview.classList.remove('is-visible');
+    });
+
+    var BASE_PRICE = 14990;
+    var checkboxes    = document.querySelectorAll('.opt-checkbox');
+    var frameSizeSel  = document.getElementById('frameSize');
+    var totalAmountEl = document.getElementById('totalAmount');
+    var orderBtn      = document.getElementById('orderBtn');
+    var orderFeedback = document.getElementById('orderFeedback');
+    var emailInput    = document.getElementById('customerEmail');
+    var emailError    = document.getElementById('emailError');
+
+    function formatHuf(n){ return n.toLocaleString('hu-HU') + ' Ft'; }
+
+    function getSizeInfo(){
+      var parts = frameSizeSel.value.split('|');
+      return { label: frameSizeSel.options[frameSizeSel.selectedIndex].text, delta: parseInt(parts[1], 10) || 0 };
+    }
+
+    function getCheckedOptions(){
+      var chosen = [];
+      checkboxes.forEach(function(cb){
+        if(cb.checked){
+          var name = cb.closest('.option-row').querySelector('.opt-name').textContent.trim();
+          chosen.push({ name:name, price:parseInt(cb.getAttribute('data-price'),10) });
+        }
+      });
+      return chosen;
+    }
+
+    function recalcTotal(){
+      var total = BASE_PRICE + getSizeInfo().delta;
+      getCheckedOptions().forEach(function(o){ total += o.price; });
+      totalAmountEl.textContent = formatHuf(total);
+      return total;
+    }
+    checkboxes.forEach(function(cb){ cb.addEventListener('change', recalcTotal); });
+    frameSizeSel.addEventListener('change', recalcTotal);
+    recalcTotal();
+
+    function isValidEmail(value){
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+
+    function showFeedback(text, isError){
+      orderFeedback.textContent = text;
+      orderFeedback.classList.toggle('is-error', !!isError);
+      orderFeedback.classList.add('is-visible');
+    }
+
+    /* A fotót először imgbb-re töltjük fel (nincs vele gyakorlati méretkorlát,
+       mint a base64-es beágyazásnál), a kapott linket pedig elküldjük
+       EmailJS-el az ajánlatkérés többi adatával együtt. */
+    orderBtn.addEventListener('click', async function(){
+      var hasError = false;
+
+      if(!uploadedFile){
+        uploadZone.classList.add('has-error');
+        uploadError.classList.add('is-visible');
+        hasError = true;
+      }
+
+      var emailVal = emailInput.value.trim();
+      if(!isValidEmail(emailVal)){
+        emailInput.classList.add('has-error');
+        emailError.classList.add('is-visible');
+        hasError = true;
+      } else {
+        emailInput.classList.remove('has-error');
+        emailError.classList.remove('is-visible');
+      }
+
+      if(hasError){
+        orderFeedback.classList.remove('is-visible');
+        return;
+      }
+
+      if(!window.emailjs){
+        showFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be. Próbáld frissíteni az oldalt.', true);
+        return;
+      }
+
+      var total       = recalcTotal();
+      var size        = getSizeInfo();
+      var options     = getCheckedOptions();
+      var optionsText = options.length
+        ? options.map(function(o){ return o.name + ' (+' + formatHuf(o.price) + ')'; }).join(', ')
+        : 'Nincs kiválasztott kiegészítő';
+
+      orderBtn.disabled = true;
+      orderFeedback.classList.remove('is-visible', 'is-error');
+
+      try{
+        orderBtn.textContent = 'Kép feltöltése folyamatban…';
+
+        var formData = new FormData();
+        formData.append('image', uploadedFile);
+
+        var uploadResponse = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY, {
+          method: 'POST',
+          body: formData
+        });
+        var uploadResult = await uploadResponse.json();
+        if(!uploadResult || !uploadResult.success){
+          throw new Error('A kép feltöltése sikertelen volt.');
+        }
+        var photoUrl = uploadResult.data.url;
+
+        orderBtn.textContent = 'Küldés folyamatban…';
+
+        var templateParams = {
+          customer_email: emailVal,
+          frame_size:     size.label,
+          options:        optionsText,
+          total:          formatHuf(total),
+          photo_name:     uploadedFile.name,
+          photo_url:      photoUrl
+        };
+
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+
+        orderBtn.textContent = 'Elküldve ✓';
+        showFeedback('Köszönjük! Az ajánlatkérésedet (' + formatHuf(total) + ') megkaptuk, hamarosan válaszolunk.', false);
+        window.setTimeout(function(){
+          orderBtn.disabled = false;
+          orderBtn.textContent = 'Ajánlatkérés elküldése';
+        }, 3200);
+
+      } catch(err){
+        console.error('Hiba a küldés során:', err);
+        orderBtn.disabled = false;
+        orderBtn.textContent = 'Ajánlatkérés elküldése';
+        showFeedback('Sajnos nem sikerült elküldeni az ajánlatkérést: ' + (err.message || 'ismeretlen hiba') + '. Kérjük, próbáld újra.', true);
+      }
+    });
+
+  })();
+  </script>
+
+</body>
+</html>
