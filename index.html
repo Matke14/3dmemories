@@ -373,6 +373,37 @@
   .testi-quote{ font-family:var(--serif); font-style:italic; font-size:1.08rem; line-height:1.5; color:var(--ink); }
   .testi-author{ margin-top:20px; font-size:0.88rem; color:var(--ink-faint); }
 
+  /* HÍRLEVÉL */
+  .newsletter{
+    background:
+      radial-gradient(120% 160% at 15% 0%, rgba(200,165,101,0.10), transparent 55%),
+      var(--bg-raised);
+    border-top:1px solid var(--line-soft);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .newsletter-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:clamp(28px, 5vw, 56px); flex-wrap:wrap;
+  }
+  .newsletter-text{ max-width:520px; }
+  .newsletter-text .kicker{
+    display:block; font-family:var(--serif); font-style:italic; font-size:1.02rem;
+    color:var(--gold-bright); margin-bottom:10px;
+  }
+  .newsletter-text h2{ font-size:clamp(1.7rem, 3vw, 2.3rem); }
+  .newsletter-text p{ margin-top:14px; color:var(--ink-dim); font-size:1rem; max-width:48ch; }
+
+  .newsletter-form{ flex:1; min-width:280px; max-width:440px; width:100%; }
+  .newsletter-field{ display:flex; gap:10px; }
+  .newsletter-field .text-input{ flex:1; }
+  .newsletter-field .btn{ flex-shrink:0; }
+  .newsletter-form .field-error{ text-align:left; }
+  .newsletter-form .order-feedback{ text-align:left; }
+  @media (max-width:560px){
+    .newsletter-field{ flex-direction:column; }
+    .newsletter-field .btn{ width:100%; }
+  }
+
   /* KAPCSOLAT / FOOTER */
   .site-footer{ background:var(--bg); border-top:1px solid var(--line); padding:clamp(56px, 7vw, 88px) 0 28px; }
   .footer-top{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:clamp(32px, 5vw, 64px); padding-bottom:44px; }
@@ -582,7 +613,7 @@
           <span class="step-num">3</span>
           <div class="step-body">
             <h3>Nyomtatás és kézi utómunka</h3>
-            <p>Minden elkészült terméket gyártás után sajátkezűleg ellenőrzünk és szükség esetén utómunkával érjük el a kívánt eredményt. </p>
+            <p>Minden termék FDM nyomtatási technológiával kerül legyártásra, gyártás után sajátkezűleg ellenőrzünk és szükség esetén utómunkával érjük el a kívánt eredményt. </p>
           </div>
         </div>
       </div>
@@ -764,6 +795,24 @@
     </div>
   </section>
 
+  <section class="newsletter" id="hirlevel">
+    <div class="wrap newsletter-inner reveal">
+      <div class="newsletter-text">
+        <span class="kicker">Hírlevél</span>
+        <h2>Legyél az első, aki értesül az újdonságainkról</h2>
+        <p>Iratkozz fel, és elsőként kapsz értesítést az akciókról, az új termékvariációkról és exkluzív ajánlatainkról — nem küldünk sok levelet, csak amit érdemes elolvasni.</p>
+      </div>
+      <form class="newsletter-form" id="newsletterForm" novalidate>
+        <div class="newsletter-field">
+          <input type="email" id="newsletterEmail" class="text-input" placeholder="pl. nev@example.com" autocomplete="email" required>
+          <button class="btn btn-primary" id="newsletterBtn" type="submit">Feliratkozom</button>
+        </div>
+        <p class="field-error" id="newsletterError">Adj meg egy érvényes e-mail címet a feliratkozáshoz.</p>
+        <p class="order-feedback" id="newsletterFeedback"></p>
+      </form>
+    </div>
+  </section>
+
   <footer class="site-footer" id="kapcsolat">
     <div class="wrap">
       <div class="footer-top">
@@ -800,6 +849,7 @@
             <li><a href="#termekek">Termékek</a></li>
             <li><a href="#tortenetunk">Történetünk</a></li>
             <li><a href="#velemenyek">Vélemények</a></li>
+            <li><a href="#hirlevel">Hírlevél</a></li>
             <li><a href="#konfigurator">Ajánlatkérés</a></li>
           </ul>
         </div>
@@ -827,6 +877,13 @@
        {{photo_name}}, {{photo_url}}. A {{photo_url}} egy sima link, amit
        a template-ben <a href="{{photo_url}}">Fotó megtekintése</a> vagy
        <img src="{{photo_url}}"> formában is meg lehet jeleníteni. */
+
+    /* A hírlevél-feliratkozáshoz külön EmailJS sablon kell — hozz létre egy
+       ÚJ template-et az EmailJS fiókodban (pl. "template_hirlevel"), aminek
+       a "To Email" mezőjébe fixen írd be a nagyreka1911@gmail.com-ot, a
+       szövegében pedig hivatkozz erre a változóra: {{subscriber_email}}.
+       Az így kapott TEMPLATE ID-t írd be ide: */
+    var NEWSLETTER_TEMPLATE_ID = "YOUR_NEWSLETTER_TEMPLATE_ID";
 
     if(window.emailjs){ emailjs.init(EMAILJS_PUBLIC_KEY); }
 
@@ -1104,6 +1161,64 @@
         orderBtn.disabled = false;
         orderBtn.textContent = 'Ajánlatkérés elküldése';
         showFeedback('Sajnos nem sikerült elküldeni az ajánlatkérést: ' + (err.message || 'ismeretlen hiba') + '. Kérjük, próbáld újra.', true);
+      }
+    });
+
+    /* ====== HÍRLEVÉL FELIRATKOZÁS ====== */
+    var newsletterForm     = document.getElementById('newsletterForm');
+    var newsletterEmailEl  = document.getElementById('newsletterEmail');
+    var newsletterError    = document.getElementById('newsletterError');
+    var newsletterFeedback = document.getElementById('newsletterFeedback');
+    var newsletterBtn      = document.getElementById('newsletterBtn');
+
+    function showNewsletterFeedback(text, isError){
+      newsletterFeedback.textContent = text;
+      newsletterFeedback.classList.toggle('is-error', !!isError);
+      newsletterFeedback.classList.add('is-visible');
+    }
+
+    newsletterForm.addEventListener('submit', async function(e){
+      e.preventDefault();
+
+      var subscriberEmail = newsletterEmailEl.value.trim();
+      if(!isValidEmail(subscriberEmail)){
+        newsletterEmailEl.classList.add('has-error');
+        newsletterError.classList.add('is-visible');
+        newsletterFeedback.classList.remove('is-visible');
+        return;
+      }
+      newsletterEmailEl.classList.remove('has-error');
+      newsletterError.classList.remove('is-visible');
+
+      if(!window.emailjs){
+        showNewsletterFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be. Próbáld frissíteni az oldalt.', true);
+        return;
+      }
+      if(NEWSLETTER_TEMPLATE_ID === "YOUR_NEWSLETTER_TEMPLATE_ID"){
+        showNewsletterFeedback('A hírlevél még nincs teljesen beállítva — hiányzik a NEWSLETTER_TEMPLATE_ID.', true);
+        return;
+      }
+
+      newsletterBtn.disabled = true;
+      newsletterBtn.textContent = 'Küldés…';
+      newsletterFeedback.classList.remove('is-visible', 'is-error');
+
+      try{
+        await emailjs.send(EMAILJS_SERVICE_ID, NEWSLETTER_TEMPLATE_ID, {
+          subscriber_email: subscriberEmail
+        });
+        newsletterBtn.textContent = 'Feliratkoztál ✓';
+        showNewsletterFeedback('Köszönjük a feliratkozást! Mostantól elsőként értesülsz az újdonságainkról.', false);
+        newsletterEmailEl.value = '';
+        window.setTimeout(function(){
+          newsletterBtn.disabled = false;
+          newsletterBtn.textContent = 'Feliratkozom';
+        }, 3200);
+      } catch(err){
+        console.error('Hiba a hírlevél-feliratkozás során:', err);
+        newsletterBtn.disabled = false;
+        newsletterBtn.textContent = 'Feliratkozom';
+        showNewsletterFeedback('Sajnos nem sikerült elküldeni a feliratkozást. Kérjük, próbáld újra.', true);
       }
     });
 
