@@ -108,9 +108,17 @@
   }
   .brand{
     font-family:var(--serif); font-size:1.28rem; font-weight:500; letter-spacing:0.01em;
-    color:var(--ink); white-space:nowrap; display:flex; align-items:baseline; gap:2px;
+    color:var(--ink); white-space:nowrap; display:flex; align-items:center; gap:10px;
   }
   .brand em{ font-style:italic; color:var(--gold-bright); font-weight:500; }
+  .brand-logo{
+    height:54px;
+    width:54px;
+    object-fit:cover;
+    border-radius:6px;
+    border:1px solid var(--line);
+    flex-shrink:0;
+  }
 
   .main-nav{ display:flex; align-items:center; gap:clamp(18px, 2.6vw, 38px); }
   .main-nav a{
@@ -453,7 +461,10 @@
 <body>
 
   <header class="site-header" id="site-header">
-    <a href="#hero" class="brand">3D <em>Memories</em></a>
+    <a href="#hero" class="brand">
+      <img src="images/logo.jpg" alt="3D Memories logó" class="brand-logo">
+      3D <em>Memories</em>
+    </a>
     <nav class="main-nav" aria-label="Fő navigáció">
       <a href="#termekek">Termékek</a>
       <a href="#tortenetunk">Történetünk</a>
