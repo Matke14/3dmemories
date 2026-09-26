@@ -329,23 +329,41 @@
   }
   .field-error{ display:none; margin-top:8px; font-size:0.82rem; color:var(--error); }
   .field-error.is-visible{ display:block; }
+  .field-hint{ margin-top:10px; font-size:0.82rem; color:var(--ink-faint); line-height:1.5; }
 
   .option-list{ display:flex; flex-direction:column; }
   .option-row{ display:flex; align-items:center; gap:14px; padding:14px 0; cursor:pointer; }
   .option-row + .option-row{ border-top:1px solid var(--line-soft); }
-  .option-row input[type="checkbox"]{
+  .option-row input[type="checkbox"], .option-row input[type="radio"]{
     appearance:none; -webkit-appearance:none; width:19px; height:19px; flex-shrink:0;
-    border:1px solid var(--line); border-radius:3px; background:var(--bg); position:relative;
+    border:1px solid var(--line); background:var(--bg); position:relative;
     cursor:pointer; transition:border-color .2s, background .2s;
   }
-  .option-row input[type="checkbox"]:checked{ background:var(--gold); border-color:var(--gold); }
+  .option-row input[type="checkbox"]{ border-radius:3px; }
+  .option-row input[type="radio"]{ border-radius:50%; }
+  .option-row input[type="checkbox"]:checked, .option-row input[type="radio"]:checked{ background:var(--gold); border-color:var(--gold); }
   .option-row input[type="checkbox"]:checked::after{
     content:""; position:absolute; left:6px; top:2px; width:5px; height:10px;
     border:solid #151109; border-width:0 2px 2px 0; transform:rotate(45deg);
   }
+  .option-row input[type="radio"]:checked::after{
+    content:""; position:absolute; left:5px; top:5px; width:7px; height:7px;
+    border-radius:50%; background:#151109;
+  }
   .option-label{ flex:1; display:flex; justify-content:space-between; gap:12px; font-size:0.96rem; }
   .option-label .opt-name{ color:var(--ink); }
   .option-label .opt-price{ color:var(--gold-bright); white-space:nowrap; }
+
+  .coupon-row{ display:flex; gap:10px; align-items:flex-end; padding:18px 0; border-bottom:1px solid var(--line-soft); }
+  .coupon-row .field-label{ display:block; font-size:0.9rem; color:var(--ink-dim); margin-bottom:9px; }
+  .coupon-row .coupon-input-wrap{ flex:1; min-width:0; }
+  .coupon-row .btn{ flex-shrink:0; padding:11px 18px; }
+  .coupon-feedback{
+    margin-top:10px; font-size:0.85rem; color:var(--gold-bright);
+    display:none; text-align:left;
+  }
+  .coupon-feedback.is-visible{ display:block; }
+  .coupon-feedback.is-error{ color:var(--error); }
 
   .config-total{
     display:flex; justify-content:space-between; align-items:baseline;
@@ -353,6 +371,12 @@
   }
   .config-total span:first-child{ font-size:0.98rem; color:var(--ink-dim); }
   .config-total .total-amount{ font-family:var(--serif); font-size:1.9rem; color:var(--gold-bright); font-style:italic; }
+  .discount-row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-top:10px; font-size:0.88rem; color:var(--gold-bright);
+    display:none;
+  }
+  .discount-row.is-visible{ display:flex; }
 
   .config-panel .btn{ margin-top:24px; }
   .order-feedback{
@@ -420,8 +444,21 @@
   .footer-col svg{ width:15px; height:15px; color:var(--gold); flex-shrink:0; }
   .footer-bottom{
     padding-top:24px; border-top:1px solid var(--line-soft);
-    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    text-align:center;
     font-size:0.82rem; color:var(--ink-faint);
+  }
+  .footer-legal-links{
+    display:flex; gap:20px; flex-wrap:wrap; justify-content:center;
+  }
+  .footer-legal-links a{
+    color:var(--ink-dim); font-size:0.85rem;
+    text-decoration:underline; text-underline-offset:3px;
+    transition:color .2s var(--ease);
+  }
+  .footer-legal-links a:hover{ color:var(--gold-bright); }
+  .footer-bottom-copy{
+    display:flex; justify-content:center; flex-wrap:wrap; gap:10px;
   }
 
   @media (max-width: 980px){
@@ -687,6 +724,20 @@
                 <input type="text" id="shipAddress" class="text-input" placeholder="pl. Fő utca 12., 3. emelet 2. ajtó" autocomplete="street-address">
                 <p class="field-error" id="shipAddressError">Add meg a pontos címed.</p>
               </div>
+
+              <!-- Szállítási mód: Foxpost -->
+              <div class="field-group full">
+                <label class="field-label" for="shippingMethod">Szállítási mód *</label>
+                <select id="shippingMethod" class="select-input">
+                  <option value="Foxpost csomagautomata|1190">Foxpost csomagautomata (+1 190 Ft)</option>
+                  <option value="Foxpost házhozszállítás|1890">Foxpost házhozszállítás (+1 890 Ft)</option>
+                </select>
+              </div>
+              <div class="field-group full" id="foxpostAutomataGroup">
+                <label class="field-label" for="foxpostAutomata">Foxpost csomagautomata neve / címe *</label>
+                <input type="text" id="foxpostAutomata" class="text-input" placeholder="pl. Budapest, Aréna Pláza Foxpost automata">
+                <p class="field-error" id="foxpostAutomataError">Add meg a kiválasztott csomagautomata nevét vagy címét.</p>
+              </div>
             </div>
           </details>
         </div>
@@ -737,6 +788,37 @@
               <input type="checkbox" class="opt-checkbox" data-price="0">
               <span class="option-label"><span class="opt-name">Háttér eltávolítása</span><span class="opt-price">+0 Ft</span></span>
             </label>
+          </div>
+
+          <!-- Fizetési mód: online / utánvét -->
+          <div class="field-group">
+            <label class="field-label">Fizetési mód *</label>
+            <div class="option-list" style="border:none;">
+              <label class="option-row">
+                <input type="radio" name="paymentMethod" id="paymentTransfer" value="Banki átutalás / Online fizetés|0" checked>
+                <span class="option-label"><span class="opt-name">Banki átutalás / Online fizetés</span><span class="opt-price">+0 Ft</span></span>
+              </label>
+              <label class="option-row">
+                <input type="radio" name="paymentMethod" id="paymentCod" value="Utánvétes fizetés|490">
+                <span class="option-label"><span class="opt-name">Utánvétes fizetés</span><span class="opt-price">+490 Ft</span></span>
+              </label>
+            </div>
+            <p class="field-hint">Online fizetés esetén a gyártás megkezdése előtt egy biztonságos fizetési linket küldünk e-mailben, miután átnéztük a feltöltött fotó minőségét.</p>
+          </div>
+
+          <!-- Kuponkód -->
+          <div class="coupon-row">
+            <div class="coupon-input-wrap">
+              <label class="field-label" for="couponCode">Kuponkód</label>
+              <input type="text" id="couponCode" class="text-input" placeholder="pl. NYITANAS10">
+            </div>
+            <button type="button" class="btn btn-outline" id="applyCouponBtn">Beváltás</button>
+          </div>
+          <p class="coupon-feedback" id="couponFeedback"></p>
+
+          <div class="discount-row" id="discountRow">
+            <span id="discountLabel">Kedvezmény</span>
+            <span id="discountAmount">-0 Ft</span>
           </div>
 
           <div class="config-total">
@@ -854,9 +936,20 @@
           </ul>
         </div>
       </div>
+
+      <!-- Jogi linkek: az ÁSZF-et, adatkezelési tájékoztatót és impresszumot
+           még el kell készíteni külön oldalként (aszf.html, adatkezeles.html,
+           impresszum.html) — ezek a linkek egyelőre oda mutatnak. -->
       <div class="footer-bottom">
-        <span>© <span id="year"></span> 3D Memories. Minden jog fenntartva.</span>
-        <span>Készítve szeretettel, Budapesten.</span>
+        <div class="footer-legal-links">
+          <a href="aszf.html" target="_blank" rel="noopener">Általános Szerződési Feltételek (ÁSZF)</a>
+          <a href="adatkezeles.html" target="_blank" rel="noopener">Adatkezelési Tájékoztató</a>
+          <a href="impresszum.html" target="_blank" rel="noopener">Impresszum</a>
+        </div>
+        <div class="footer-bottom-copy">
+          <span>© <span id="year"></span> 3D Memories. Minden jog fenntartva.</span>
+          <span>Készítve szeretettel, Budapesten.</span>
+        </div>
       </div>
     </div>
   </footer>
@@ -874,9 +967,11 @@
        EmailJS-el, így nagyobb fájlok is feltölthetők (nincs base64-es
        méretkorlát). A template-ben ezekre a változónevekre hivatkozz:
        {{customer_email}}, {{frame_size}}, {{options}}, {{total}},
-       {{photo_name}}, {{photo_url}}. A {{photo_url}} egy sima link, amit
-       a template-ben <a href="{{photo_url}}">Fotó megtekintése</a> vagy
-       <img src="{{photo_url}}"> formában is meg lehet jeleníteni. */
+       {{photo_name}}, {{photo_url}}, {{shipping_method}},
+       {{foxpost_automata}}, {{payment_method}}, {{coupon_code}},
+       {{discount_amount}}, {{subtotal}}. A {{photo_url}} egy sima link,
+       amit a template-ben <a href="{{photo_url}}">Fotó megtekintése</a>
+       vagy <img src="{{photo_url}}"> formában is meg lehet jeleníteni. */
 
     /* A hírlevél-feliratkozáshoz külön EmailJS sablon kell — hozz létre egy
        ÚJ template-et az EmailJS fiókodban (pl. "template_hirlevel"), aminek
@@ -1009,6 +1104,45 @@
     var shipCityEl    = document.getElementById('shipCity');
     var shipAddressEl = document.getElementById('shipAddress');
 
+    /* szállítási mód (Foxpost) */
+    var shippingMethodSel     = document.getElementById('shippingMethod');
+    var foxpostAutomataGroup  = document.getElementById('foxpostAutomataGroup');
+    var foxpostAutomataEl     = document.getElementById('foxpostAutomata');
+    var foxpostAutomataError  = document.getElementById('foxpostAutomataError');
+
+    function isAutomataSelected(){
+      return shippingMethodSel.value.indexOf('csomagautomata') !== -1;
+    }
+    function updateFoxpostFieldVisibility(){
+      foxpostAutomataGroup.style.display = isAutomataSelected() ? '' : 'none';
+      if(!isAutomataSelected()){
+        foxpostAutomataEl.classList.remove('has-error');
+        foxpostAutomataError.classList.remove('is-visible');
+      }
+    }
+    shippingMethodSel.addEventListener('change', function(){
+      updateFoxpostFieldVisibility();
+      recalcTotal();
+    });
+    updateFoxpostFieldVisibility();
+
+    /* fizetési mód */
+    var paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
+    paymentRadios.forEach(function(r){ r.addEventListener('change', recalcTotal); });
+
+    /* kuponkód */
+    var COUPONS = {
+      'NYITANAS10':     { type:'percent', value:10 },
+      'KEDVEZMENY1000': { type:'fixed',   value:1000 }
+    };
+    var appliedCoupon = null;
+    var couponCodeEl    = document.getElementById('couponCode');
+    var applyCouponBtn  = document.getElementById('applyCouponBtn');
+    var couponFeedback  = document.getElementById('couponFeedback');
+    var discountRow      = document.getElementById('discountRow');
+    var discountLabelEl  = document.getElementById('discountLabel');
+    var discountAmountEl = document.getElementById('discountAmount');
+
     function formatHuf(n){ return n.toLocaleString('hu-HU') + ' Ft'; }
 
     function getSizeInfo(){
@@ -1027,15 +1161,67 @@
       return chosen;
     }
 
+    function getShippingInfo(){
+      var parts = shippingMethodSel.value.split('|');
+      return { label: parts[0], price: parseInt(parts[1],10) || 0 };
+    }
+
+    function getPaymentInfo(){
+      var checked = document.querySelector('input[name="paymentMethod"]:checked');
+      var parts = (checked ? checked.value : 'Banki átutalás / Online fizetés|0').split('|');
+      return { label: parts[0], price: parseInt(parts[1],10) || 0 };
+    }
+
     function recalcTotal(){
-      var total = BASE_PRICE + getSizeInfo().delta;
-      getCheckedOptions().forEach(function(o){ total += o.price; });
+      var subtotal = BASE_PRICE + getSizeInfo().delta;
+      getCheckedOptions().forEach(function(o){ subtotal += o.price; });
+      subtotal += getShippingInfo().price;
+      subtotal += getPaymentInfo().price;
+
+      var discount = 0;
+      if(appliedCoupon){
+        discount = appliedCoupon.type === 'percent'
+          ? Math.round(subtotal * appliedCoupon.value / 100)
+          : appliedCoupon.value;
+        if(discount > subtotal) discount = subtotal;
+      }
+
+      var total = subtotal - discount;
+
+      if(discount > 0){
+        discountLabelEl.textContent = 'Kedvezmény (' + appliedCoupon.code + ')';
+        discountAmountEl.textContent = '-' + formatHuf(discount);
+        discountRow.classList.add('is-visible');
+      } else {
+        discountRow.classList.remove('is-visible');
+      }
+
       totalAmountEl.textContent = formatHuf(total);
-      return total;
+      return { subtotal: subtotal, discount: discount, total: total };
     }
     checkboxes.forEach(function(cb){ cb.addEventListener('change', recalcTotal); });
     frameSizeSel.addEventListener('change', recalcTotal);
     recalcTotal();
+
+    applyCouponBtn.addEventListener('click', function(){
+      var code = couponCodeEl.value.trim().toUpperCase();
+      couponCodeEl.classList.remove('has-error');
+      couponFeedback.classList.remove('is-visible', 'is-error');
+
+      if(!code){ return; }
+
+      if(COUPONS[code]){
+        appliedCoupon = { code: code, type: COUPONS[code].type, value: COUPONS[code].value };
+        couponFeedback.textContent = 'A(z) "' + code + '" kuponkód sikeresen alkalmazva!';
+        couponFeedback.classList.add('is-visible');
+      } else {
+        appliedCoupon = null;
+        couponCodeEl.classList.add('has-error');
+        couponFeedback.textContent = 'Ez a kuponkód nem érvényes.';
+        couponFeedback.classList.add('is-visible', 'is-error');
+      }
+      recalcTotal();
+    });
 
     function isValidEmail(value){
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -1087,6 +1273,16 @@
           f.error.classList.remove('is-visible');
         }
       });
+
+      if(isAutomataSelected() && !foxpostAutomataEl.value.trim()){
+        foxpostAutomataEl.classList.add('has-error');
+        foxpostAutomataError.classList.add('is-visible');
+        shippingHasError = true;
+      } else {
+        foxpostAutomataEl.classList.remove('has-error');
+        foxpostAutomataError.classList.remove('is-visible');
+      }
+
       if(shippingHasError){
         shippingDetailsEl.open = true;
         hasError = true;
@@ -1102,8 +1298,10 @@
         return;
       }
 
-      var total       = recalcTotal();
+      var totals      = recalcTotal();
       var size        = getSizeInfo();
+      var shipping    = getShippingInfo();
+      var payment     = getPaymentInfo();
       var options     = getCheckedOptions();
       var optionsText = options.length
         ? options.map(function(o){ return o.name + ' (+' + formatHuf(o.price) + ')'; }).join(', ')
@@ -1136,7 +1334,10 @@
           customer_email: emailVal,
           frame_size:     size.label,
           options:        optionsText,
-          total:          formatHuf(total),
+          subtotal:       formatHuf(totals.subtotal),
+          discount_amount: totals.discount > 0 ? formatHuf(totals.discount) : 'Nincs',
+          coupon_code:    appliedCoupon ? appliedCoupon.code : 'Nincs',
+          total:          formatHuf(totals.total),
           photo_name:     uploadedFile.name,
           photo_url:      photoUrl,
           custom_notes:   customNotesEl.value.trim() || 'Nincs egyedi kérés',
@@ -1144,13 +1345,16 @@
           shipping_phone:   shipPhoneEl.value.trim(),
           shipping_zip:     shipZipEl.value.trim(),
           shipping_city:    shipCityEl.value.trim(),
-          shipping_address: shipAddressEl.value.trim()
+          shipping_address: shipAddressEl.value.trim(),
+          shipping_method:  shipping.label,
+          foxpost_automata: isAutomataSelected() ? foxpostAutomataEl.value.trim() : 'Nem releváns (házhozszállítás)',
+          payment_method:   payment.label
         };
 
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
 
         orderBtn.textContent = 'Elküldve ✓';
-        showFeedback('Köszönjük! Az ajánlatkérésedet (' + formatHuf(total) + ') megkaptuk, hamarosan válaszolunk.', false);
+        showFeedback('Köszönjük! Az ajánlatkérésedet (' + formatHuf(totals.total) + ') megkaptuk, hamarosan válaszolunk.', false);
         window.setTimeout(function(){
           orderBtn.disabled = false;
           orderBtn.textContent = 'Ajánlatkérés elküldése';
