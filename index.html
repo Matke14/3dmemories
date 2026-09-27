@@ -397,36 +397,32 @@
   .testi-quote{ font-family:var(--serif); font-style:italic; font-size:1.08rem; line-height:1.5; color:var(--ink); }
   .testi-author{ margin-top:20px; font-size:0.88rem; color:var(--ink-faint); }
 
-  /* HÍRLEVÉL */
-  .newsletter{
-    background:
-      radial-gradient(120% 160% at 15% 0%, rgba(200,165,101,0.10), transparent 55%),
-      var(--bg-raised);
-    border-top:1px solid var(--line-soft);
-    border-bottom:1px solid var(--line-soft);
+  /* SAJÁT VÉLEMÉNY ÍRÁSA */
+  .review-form-wrap{
+    margin-top:clamp(48px, 6vw, 72px);
+    padding-top:clamp(40px, 6vw, 64px);
+    border-top:1px solid var(--line);
+    max-width:640px;
   }
-  .newsletter-inner{
-    display:flex; align-items:center; justify-content:space-between;
-    gap:clamp(28px, 5vw, 56px); flex-wrap:wrap;
+  .review-form-wrap h3{
+    font-size:1.35rem; font-weight:500;
   }
-  .newsletter-text{ max-width:520px; }
-  .newsletter-text .kicker{
-    display:block; font-family:var(--serif); font-style:italic; font-size:1.02rem;
-    color:var(--gold-bright); margin-bottom:10px;
+  .review-form-wrap > p{
+    margin-top:10px; color:var(--ink-dim); font-size:0.98rem; max-width:52ch;
   }
-  .newsletter-text h2{ font-size:clamp(1.7rem, 3vw, 2.3rem); }
-  .newsletter-text p{ margin-top:14px; color:var(--ink-dim); font-size:1rem; max-width:48ch; }
-
-  .newsletter-form{ flex:1; min-width:280px; max-width:440px; width:100%; }
-  .newsletter-field{ display:flex; gap:10px; }
-  .newsletter-field .text-input{ flex:1; }
-  .newsletter-field .btn{ flex-shrink:0; }
-  .newsletter-form .field-error{ text-align:left; }
-  .newsletter-form .order-feedback{ text-align:left; }
-  @media (max-width:560px){
-    .newsletter-field{ flex-direction:column; }
-    .newsletter-field .btn{ width:100%; }
+  .star-input{
+    display:flex; gap:6px; margin-top:22px;
   }
+  .star-btn{
+    background:none; border:none; padding:0; margin:0;
+    font-size:2rem; line-height:1; cursor:pointer;
+    color:var(--ink-faint);
+    transition:color .15s var(--ease), transform .15s var(--ease);
+  }
+  .star-btn:hover{ transform:scale(1.08); }
+  .star-btn.is-active{ color:var(--gold); }
+  .review-form-wrap .field-group{ padding:16px 0; }
+  .review-form-wrap .field-group:first-of-type{ padding-top:22px; }
 
   /* KAPCSOLAT / FOOTER */
   .site-footer{ background:var(--bg); border-top:1px solid var(--line); padding:clamp(56px, 7vw, 88px) 0 28px; }
@@ -874,6 +870,37 @@
           <p class="testi-author">Kiss Dávid</p>
         </article>
       </div>
+
+      <!-- SAJÁT VÉLEMÉNY ÍRÁSA -->
+      <div class="review-form-wrap reveal">
+        <h3>Van tapasztalatod velünk? Oszd meg!</h3>
+        <p>Add meg az értékelésed és pár mondatban a véleményed — miután átnéztük, közzétesszük a többi vélemény közt.</p>
+
+        <div class="star-input" id="starInput" role="radiogroup" aria-label="Értékelés csillagokkal">
+          <button type="button" class="star-btn" data-value="1" aria-label="1 csillag">★</button>
+          <button type="button" class="star-btn" data-value="2" aria-label="2 csillag">★</button>
+          <button type="button" class="star-btn" data-value="3" aria-label="3 csillag">★</button>
+          <button type="button" class="star-btn" data-value="4" aria-label="4 csillag">★</button>
+          <button type="button" class="star-btn" data-value="5" aria-label="5 csillag">★</button>
+        </div>
+        <input type="hidden" id="reviewRating" value="0">
+        <p class="field-error" id="reviewRatingError">Kérjük, adj meg egy csillagértékelést.</p>
+
+        <div class="field-group">
+          <label class="field-label" for="reviewName">Neved</label>
+          <input type="text" id="reviewName" class="text-input" placeholder="pl. Kovács Anna">
+          <p class="field-error" id="reviewNameError">Add meg a neved.</p>
+        </div>
+
+        <div class="field-group" style="border-bottom:none;">
+          <label class="field-label" for="reviewText">Véleményed</label>
+          <textarea id="reviewText" class="text-input" rows="4" placeholder="Mesélj pár mondatban a tapasztalatodról..." style="resize:vertical; font-family:var(--sans);"></textarea>
+          <p class="field-error" id="reviewTextError">Írj pár mondatot a véleményedről.</p>
+        </div>
+
+        <button class="btn btn-primary" id="submitReviewBtn" type="button" style="margin-top:8px;">Vélemény elküldése</button>
+        <p class="order-feedback" id="reviewFeedback" style="text-align:left;"></p>
+      </div>
     </div>
   </section>
 
@@ -929,7 +956,7 @@
           <h4>Oldal</h4>
           <ul>
             <li><a href="#termekek">Termékek</a></li>
-            <li><a href="#vizionk">Víziónk</a></li>
+            <li><a href="#tortenetunk">Víziónk</a></li>
             <li><a href="#velemenyek">Vélemények</a></li>
             <li><a href="#hirlevel">Hírlevél</a></li>
             <li><a href="#konfigurator">Ajánlatkérés</a></li>
@@ -937,9 +964,9 @@
         </div>
       </div>
 
-      <!-- Jogi linkek: az ÁSZF-et, adatkezelési tájékoztatót és impresszumot
-           még el kell készíteni külön oldalként (aszf.html, adatkezeles.html,
-           impresszum.html) — ezek a linkek egyelőre oda mutatnak. -->
+      <!-- Jogi linkek: az ÁSZF, adatkezelési tájékoztató és impresszum
+           saját fájlként létezik (aszf.html, adatkezeles.html,
+           impresszum.html), egyelőre általános minta-szöveggel. -->
       <div class="footer-bottom">
         <div class="footer-legal-links">
           <a href="aszf.html" target="_blank" rel="noopener">Általános Szerződési Feltételek (ÁSZF)</a>
@@ -979,6 +1006,17 @@
        szövegében pedig hivatkozz erre a változóra: {{subscriber_email}}.
        Az így kapott TEMPLATE ID-t írd be ide: */
     var NEWSLETTER_TEMPLATE_ID = "YOUR_NEWSLETTER_TEMPLATE_ID";
+
+    /* A saját vélemény beküldéshez is külön EmailJS sablon kell — hozz létre
+       egy ÚJ template-et (pl. "template_velemeny"), "To Email" mezőben fixen
+       a nagyreka1911@gmail.com, a szövegében pedig ezekre a változókra
+       hivatkozz: {{reviewer_name}}, {{rating}}, {{rating_stars}},
+       {{review_text}}. FONTOS: az oldalnak nincs saját adatbázisa, ezért az
+       új vélemény NEM jelenik meg automatikusan a látogatóknak — csak
+       e-mailben kapod meg. Ha jónak találod, a testi-grid részbe neked kell
+       bemásolnod egy új .testi-card blokként. Az így kapott TEMPLATE ID-t
+       írd be ide: */
+    var REVIEW_TEMPLATE_ID = "YOUR_REVIEW_TEMPLATE_ID";
 
     if(window.emailjs){ emailjs.init(EMAILJS_PUBLIC_KEY); }
 
@@ -1423,6 +1461,119 @@
         newsletterBtn.disabled = false;
         newsletterBtn.textContent = 'Feliratkozom';
         showNewsletterFeedback('Sajnos nem sikerült elküldeni a feliratkozást. Kérjük, próbáld újra.', true);
+      }
+    });
+
+    /* ====== SAJÁT VÉLEMÉNY BEKÜLDÉSE ====== */
+    var starButtons        = document.querySelectorAll('.star-btn');
+    var starInputWrap      = document.getElementById('starInput');
+    var reviewRatingInput  = document.getElementById('reviewRating');
+    var reviewRatingError  = document.getElementById('reviewRatingError');
+    var reviewNameEl       = document.getElementById('reviewName');
+    var reviewNameError    = document.getElementById('reviewNameError');
+    var reviewTextEl       = document.getElementById('reviewText');
+    var reviewTextError    = document.getElementById('reviewTextError');
+    var submitReviewBtn    = document.getElementById('submitReviewBtn');
+    var reviewFeedback     = document.getElementById('reviewFeedback');
+
+    function paintStars(value){
+      starButtons.forEach(function(btn){
+        var v = parseInt(btn.getAttribute('data-value'), 10);
+        btn.classList.toggle('is-active', v <= value);
+      });
+    }
+    starButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var v = parseInt(btn.getAttribute('data-value'), 10);
+        reviewRatingInput.value = v;
+        paintStars(v);
+        reviewRatingError.classList.remove('is-visible');
+      });
+      btn.addEventListener('mouseenter', function(){
+        paintStars(parseInt(btn.getAttribute('data-value'), 10));
+      });
+    });
+    starInputWrap.addEventListener('mouseleave', function(){
+      paintStars(parseInt(reviewRatingInput.value, 10) || 0);
+    });
+
+    function showReviewFeedback(text, isError){
+      reviewFeedback.textContent = text;
+      reviewFeedback.classList.toggle('is-error', !!isError);
+      reviewFeedback.classList.add('is-visible');
+    }
+
+    submitReviewBtn.addEventListener('click', async function(){
+      var hasError = false;
+      var rating = parseInt(reviewRatingInput.value, 10) || 0;
+
+      if(rating < 1){
+        reviewRatingError.classList.add('is-visible');
+        hasError = true;
+      } else {
+        reviewRatingError.classList.remove('is-visible');
+      }
+
+      var nameVal = reviewNameEl.value.trim();
+      if(!nameVal){
+        reviewNameEl.classList.add('has-error');
+        reviewNameError.classList.add('is-visible');
+        hasError = true;
+      } else {
+        reviewNameEl.classList.remove('has-error');
+        reviewNameError.classList.remove('is-visible');
+      }
+
+      var textVal = reviewTextEl.value.trim();
+      if(!textVal){
+        reviewTextEl.classList.add('has-error');
+        reviewTextError.classList.add('is-visible');
+        hasError = true;
+      } else {
+        reviewTextEl.classList.remove('has-error');
+        reviewTextError.classList.remove('is-visible');
+      }
+
+      if(hasError){
+        reviewFeedback.classList.remove('is-visible');
+        return;
+      }
+
+      if(!window.emailjs){
+        showReviewFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be. Próbáld frissíteni az oldalt.', true);
+        return;
+      }
+      if(REVIEW_TEMPLATE_ID === "YOUR_REVIEW_TEMPLATE_ID"){
+        showReviewFeedback('A vélemény küldés még nincs teljesen beállítva — hiányzik a REVIEW_TEMPLATE_ID.', true);
+        return;
+      }
+
+      submitReviewBtn.disabled = true;
+      submitReviewBtn.textContent = 'Küldés…';
+      reviewFeedback.classList.remove('is-visible', 'is-error');
+
+      try{
+        await emailjs.send(EMAILJS_SERVICE_ID, REVIEW_TEMPLATE_ID, {
+          reviewer_name: nameVal,
+          rating: rating,
+          rating_stars: '★'.repeat(rating) + '☆'.repeat(5 - rating),
+          review_text: textVal
+        });
+        submitReviewBtn.textContent = 'Elküldve ✓';
+        showReviewFeedback('Köszönjük a véleményedet! Miután átnéztük, közzétesszük az oldalon.', false);
+        reviewNameEl.value = '';
+        reviewTextEl.value = '';
+        reviewRatingInput.value = '0';
+        paintStars(0);
+        window.setTimeout(function(){
+          submitReviewBtn.disabled = false;
+          submitReviewBtn.textContent = 'Vélemény elküldése';
+        }, 3200);
+      } catch(err){
+        console.error('Hiba a vélemény küldése során:', err);
+        submitReviewBtn.disabled = false;
+        submitReviewBtn.textContent = 'Vélemény elküldése';
+        showReviewFeedback('Sajnos nem sikerült elküldeni a véleményedet. Kérjük, próbáld újra.', true);
       }
     });
 
