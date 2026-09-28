@@ -6,7 +6,7 @@
 <title>3D Memories — Kerülj közelebb az emlékeidhez</title>
 <meta name="description" content="Egyedi, 3D nyomtatott emléktárgyak fotóid alapján. Családi és páros emlékek, kézzel finomítva.">
 
-<!-- Google Fonts: Fraunces (display serif, warm & characterful) + Manrope (clean geometric sans) -->
+<!-- Google Fonts: Fraunces + Manrope -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -424,6 +424,37 @@
   .review-form-wrap .field-group{ padding:16px 0; }
   .review-form-wrap .field-group:first-of-type{ padding-top:22px; }
 
+  /* HÍRLEVÉL */
+  .newsletter{
+    background:
+      radial-gradient(120% 160% at 15% 0%, rgba(200,165,101,0.10), transparent 55%),
+      var(--bg-raised);
+    border-top:1px solid var(--line-soft);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .newsletter-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:clamp(28px, 5vw, 56px); flex-wrap:wrap;
+  }
+  .newsletter-text{ max-width:520px; }
+  .newsletter-text .kicker{
+    display:block; font-family:var(--serif); font-style:italic; font-size:1.02rem;
+    color:var(--gold-bright); margin-bottom:10px;
+  }
+  .newsletter-text h2{ font-size:clamp(1.7rem, 3vw, 2.3rem); }
+  .newsletter-text p{ margin-top:14px; color:var(--ink-dim); font-size:1rem; max-width:48ch; }
+
+  .newsletter-form{ flex:1; min-width:280px; max-width:440px; width:100%; }
+  .newsletter-field{ display:flex; gap:10px; }
+  .newsletter-field .text-input{ flex:1; }
+  .newsletter-field .btn{ flex-shrink:0; }
+  .newsletter-form .field-error{ text-align:left; }
+  .newsletter-form .order-feedback{ text-align:left; }
+  @media (max-width:560px){
+    .newsletter-field{ flex-direction:column; }
+    .newsletter-field .btn{ width:100%; }
+  }
+
   /* KAPCSOLAT / FOOTER */
   .site-footer{ background:var(--bg); border-top:1px solid var(--line); padding:clamp(56px, 7vw, 88px) 0 28px; }
   .footer-top{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:clamp(32px, 5vw, 64px); padding-bottom:44px; }
@@ -560,7 +591,7 @@
       <div class="hero-copy reveal">
         <span class="kicker">Kézzelfogható emlékek</span>
         <h1>Kerülj közelebb az emlékeidhez</h1>
-        <p>Alkotsd újra emlékeidet egy egyedi 3d nyomtatott képen. Hogy az emlékekk kézzel foghatók legyenek. </p>
+        <p>Alkotsd újra emlékeidet egy egyedi 3D nyomtatott képen, hogy az emlékek kézzel foghatók legyenek.</p>
         <div class="hero-actions">
           <a href="#konfigurator" class="btn btn-primary">Saját emlékem elkészítése</a>
           <a href="#tortenetunk" class="btn btn-outline">Hogyan készül</a>
@@ -595,7 +626,7 @@
           <div class="frame"><img src="images/4.jpg" alt="led,keret,kep"></div>
           <div class="product-card-body">
             <h3>3D kép, minőségi képkerettel, és LED megvilágítással</h3>
-            <p>Több színben választható képkeretet, és beépített LED világítás is jár a kép mellé.</p>
+            <p>Több színben választható képkeret és beépített LED világítás is jár a kép mellé.</p>
             <div class="product-card-price">14 990 Ft-tól</div>
           </div>
         </article>
@@ -603,7 +634,7 @@
           <div class="frame"><img src="images/5.jpg" alt="keret,kep"></div>
           <div class="product-card-body">
             <h3>Képkeret a dombornyomott képedhez</h3>
-            <p>Egyedi több színben kérhető képkeret, benne a kedvenc képeddel</p>
+            <p>Egyedi több színben kérhető képkeret, benne a kedvenc képeddel.</p>
             <div class="product-card-price">12 990 Ft-tól</div>
           </div>
         </article>
@@ -611,7 +642,7 @@
           <div class="frame"><img src="images/6.jpg" alt="kep"></div>
           <div class="product-card-body">
             <h3>3D dombornyomott kép</h3>
-            <p>Ha otthon van saját képkereted, és a világítást is megtudod oldani, költséghatékonyság keretében ajánljuk az egyszerű kép rendelését.</p>
+            <p>Ha otthon van saját képkereted, és a világítást is meg tudod oldani, költséghatékonyság keretében ajánljuk az egyszerű kép rendelését.</p>
             <div class="product-card-price">9 990 Ft-tól</div>
           </div>
         </article>
@@ -624,7 +655,7 @@
       <div class="story-intro reveal">
         <span class="kicker">Víziónk</span>
         <h2>Fotóból kézzel fogható emlékké</h2>
-        <p>Azért kezdtünk el 3D emlékeket készíteni, mert hisszük, hogy vannak pillanatok, amelyeket nem szeretnénk csak egy fotóban megőrizni. Mi ezeket a képeket dombornyomott, kézzelfogható emlékekké formáljuk – Rólatok, Nektek. </p>
+        <p>Azért kezdtünk el 3D emlékeket készíteni, mert hisszük, hogy vannak pillanatok, amelyeket nem szeretnénk csak egy fotóban megőrizni. Mi ezeket a képeket dombornyomott, kézzelfogható emlékekké formáljuk – Rólatok, Nektek.</p>
         <p>Nem gyártósori terméket készítünk. Minden darab egy kézzel átnézett, finomított modellből születik, hogy a végeredmény tényleg a vevő kérésére szabott legyen. Legyen a te emléked vagy ajándékod több mint egy egyszerű fénykép. Küldd el a fotód, és elkészítünk egy személyre szabott ajánlatot!</p>
       </div>
       <div class="steps reveal-group">
@@ -646,7 +677,7 @@
           <span class="step-num">3</span>
           <div class="step-body">
             <h3>Nyomtatás és kézi utómunka</h3>
-            <p>Minden termék FDM nyomtatási technológiával kerül legyártásra, gyártás után sajátkezűleg ellenőrzünk és szükség esetén utómunkával érjük el a kívánt eredményt. </p>
+            <p>Minden termék FDM nyomtatási technológiával kerül legyártásra, gyártás után saját kezűleg ellenőrizzük és szükség esetén utómunkával érjük el a kívánt eredményt.</p>
           </div>
         </div>
       </div>
@@ -658,7 +689,7 @@
       <div class="section-head reveal">
         <span class="kicker">Rendelés</span>
         <h2>Állítsd össze a saját emlékedet</h2>
-        <p>Töltsd fel a fotótokat, add meg az e-mail címed és a kívánt méretet, és a lehető leghamarabb felvesszük veled a kapcsolatot és küldünk egy személyre szabott árajánlatot. </p>
+        <p>Töltsd fel a fotótokat, add meg az e-mail címed és a kívánt méretet, és a lehető leghamarabb felvesszük veled a kapcsolatot és küldünk egy személyre szabott árajánlatot.</p>
       </div>
 
       <div class="config-grid reveal-group">
@@ -786,7 +817,7 @@
             </label>
           </div>
 
-          <!-- Fizetési mód: online / utánvét -->
+          <!-- Fizetési mód -->
           <div class="field-group">
             <label class="field-label">Fizetési mód *</label>
             <div class="option-list" style="border:none;">
@@ -964,9 +995,6 @@
         </div>
       </div>
 
-      <!-- Jogi linkek: az ÁSZF, adatkezelési tájékoztató és impresszum
-           saját fájlként létezik (aszf.html, adatkezeles.html,
-           impresszum.html), egyelőre általános minta-szöveggel. -->
       <div class="footer-bottom">
         <div class="footer-legal-links">
           <a href="aszf.html" target="_blank" rel="noopener">Általános Szerződési Feltételek (ÁSZF)</a>
@@ -985,38 +1013,13 @@
   (function(){
     "use strict";
 
-    /* ====== EMAILJS BEÁLLÍTÁSOK — ide írd be a saját adataidat ====== */
+    /* ====== EMAILJS BEÁLLÍTÁSOK ====== */
     var EMAILJS_PUBLIC_KEY  = "9wk04obk2x_2ZTNsf";
     var EMAILJS_SERVICE_ID  = "service_c50lhoc";
-    var EMAILJS_TEMPLATE_ID = "template_804qc42";
-    var IMGBB_API_KEY = "2147fe97daf100cc2e3f5783075d33ec";
-    /* A fotó feltöltés előbb imgbb-re megy, onnan kapott linket küldjük el
-       EmailJS-el, így nagyobb fájlok is feltölthetők (nincs base64-es
-       méretkorlát). A template-ben ezekre a változónevekre hivatkozz:
-       {{customer_email}}, {{frame_size}}, {{options}}, {{total}},
-       {{photo_name}}, {{photo_url}}, {{shipping_method}},
-       {{foxpost_automata}}, {{payment_method}}, {{coupon_code}},
-       {{discount_amount}}, {{subtotal}}. A {{photo_url}} egy sima link,
-       amit a template-ben <a href="{{photo_url}}">Fotó megtekintése</a>
-       vagy <img src="{{photo_url}}"> formában is meg lehet jeleníteni. */
-
-    /* A hírlevél-feliratkozáshoz külön EmailJS sablon kell — hozz létre egy
-       ÚJ template-et az EmailJS fiókodban (pl. "template_hirlevel"), aminek
-       a "To Email" mezőjébe fixen írd be a nagyreka1911@gmail.com-ot, a
-       szövegében pedig hivatkozz erre a változóra: {{subscriber_email}}.
-       Az így kapott TEMPLATE ID-t írd be ide: */
-    var NEWSLETTER_TEMPLATE_ID = "YOUR_NEWSLETTER_TEMPLATE_ID";
-
-    /* A saját vélemény beküldéshez is külön EmailJS sablon kell — hozz létre
-       egy ÚJ template-et (pl. "template_velemeny"), "To Email" mezőben fixen
-       a nagyreka1911@gmail.com, a szövegében pedig ezekre a változókra
-       hivatkozz: {{reviewer_name}}, {{rating}}, {{rating_stars}},
-       {{review_text}}. FONTOS: az oldalnak nincs saját adatbázisa, ezért az
-       új vélemény NEM jelenik meg automatikusan a látogatóknak — csak
-       e-mailben kapod meg. Ha jónak találod, a testi-grid részbe neked kell
-       bemásolnod egy új .testi-card blokként. Az így kapott TEMPLATE ID-t
-       írd be ide: */
-    var REVIEW_TEMPLATE_ID = "YOUR_REVIEW_TEMPLATE_ID";
+    var ORDER_TEMPLATE_ID   = "template_0eab2al";   // árajánlatkérés (vevő + te)
+    var CONTACT_TEMPLATE_ID = "template_d663c6g";   // hírlevél + vélemény
+    var SHOP_EMAIL          = "nagyreka1911@gmail.com";
+    var IMGBB_API_KEY       = "2147fe97daf100cc2e3f5783075d33ec";
 
     if(window.emailjs){ emailjs.init(EMAILJS_PUBLIC_KEY); }
 
@@ -1271,9 +1274,7 @@
       orderFeedback.classList.add('is-visible');
     }
 
-    /* A fotót először imgbb-re töltjük fel (nincs vele gyakorlati méretkorlát,
-       mint a base64-es beágyazásnál), a kapott linket pedig elküldjük
-       EmailJS-el az ajánlatkérés többi adatával együtt. */
+    /* ====== ÁRAJÁNLATKÉRÉS ====== */
     orderBtn.addEventListener('click', async function(){
       var hasError = false;
 
@@ -1369,27 +1370,41 @@
         orderBtn.textContent = 'Küldés folyamatban…';
 
         var templateParams = {
-          customer_email: emailVal,
-          frame_size:     size.label,
-          options:        optionsText,
-          subtotal:       formatHuf(totals.subtotal),
+          name:            shipNameEl.value.trim(),
+          title:           "3D Memories megrendelés — " + size.label + " (" + formatHuf(totals.total) + ")",
+          customer_email:  emailVal,
+          frame_size:      size.label,
+          options:         optionsText,
+          subtotal:        formatHuf(totals.subtotal),
           discount_amount: totals.discount > 0 ? formatHuf(totals.discount) : 'Nincs',
-          coupon_code:    appliedCoupon ? appliedCoupon.code : 'Nincs',
-          total:          formatHuf(totals.total),
-          photo_name:     uploadedFile.name,
-          photo_url:      photoUrl,
-          custom_notes:   customNotesEl.value.trim() || 'Nincs egyedi kérés',
-          shipping_name:    shipNameEl.value.trim(),
-          shipping_phone:   shipPhoneEl.value.trim(),
-          shipping_zip:     shipZipEl.value.trim(),
-          shipping_city:    shipCityEl.value.trim(),
-          shipping_address: shipAddressEl.value.trim(),
-          shipping_method:  shipping.label,
-          foxpost_automata: isAutomataSelected() ? foxpostAutomataEl.value.trim() : 'Nem releváns (házhozszállítás)',
-          payment_method:   payment.label
+          coupon_code:     appliedCoupon ? appliedCoupon.code : 'Nincs',
+          total:           formatHuf(totals.total),
+          photo_name:      uploadedFile.name,
+          photo_url:       photoUrl,
+          custom_notes:    customNotesEl.value.trim() || 'Nincs egyedi kérés',
+          shipping_name:   shipNameEl.value.trim(),
+          shipping_phone:  shipPhoneEl.value.trim(),
+          shipping_zip:    shipZipEl.value.trim(),
+          shipping_city:   shipCityEl.value.trim(),
+          shipping_address:shipAddressEl.value.trim(),
+          shipping_method: shipping.label,
+          foxpost_automata:isAutomataSelected() ? foxpostAutomataEl.value.trim() : 'Nem releváns (házhozszállítás)',
+          payment_method:  payment.label
         };
 
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+        var customerParams = Object.assign({}, templateParams, {
+          to_email: emailVal,      // a vevő megkapja
+          reply_to: SHOP_EMAIL     // ha válaszol, hozzád érkezik
+        });
+        var shopParams = Object.assign({}, templateParams, {
+          to_email: SHOP_EMAIL,    // te is megkapod
+          reply_to: emailVal       // ha válaszolsz, a vevőnek megy
+        });
+
+        await Promise.all([
+          emailjs.send(EMAILJS_SERVICE_ID, ORDER_TEMPLATE_ID, customerParams),
+          emailjs.send(EMAILJS_SERVICE_ID, ORDER_TEMPLATE_ID, shopParams)
+        ]);
 
         orderBtn.textContent = 'Elküldve ✓';
         showFeedback('Köszönjük! Az ajánlatkérésedet (' + formatHuf(totals.total) + ') megkaptuk, hamarosan válaszolunk.', false);
@@ -1436,18 +1451,19 @@
         showNewsletterFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be. Próbáld frissíteni az oldalt.', true);
         return;
       }
-      if(NEWSLETTER_TEMPLATE_ID === "YOUR_NEWSLETTER_TEMPLATE_ID"){
-        showNewsletterFeedback('A hírlevél még nincs teljesen beállítva — hiányzik a NEWSLETTER_TEMPLATE_ID.', true);
-        return;
-      }
 
       newsletterBtn.disabled = true;
       newsletterBtn.textContent = 'Küldés…';
       newsletterFeedback.classList.remove('is-visible', 'is-error');
 
       try{
-        await emailjs.send(EMAILJS_SERVICE_ID, NEWSLETTER_TEMPLATE_ID, {
-          subscriber_email: subscriberEmail
+        await emailjs.send(EMAILJS_SERVICE_ID, CONTACT_TEMPLATE_ID, {
+          action_type:     "Hírlevél feliratkozás",
+          user_email:      subscriberEmail,
+          reviewer_name:   "Nincs megadva",
+          submission_date: new Date().toLocaleString('hu-HU'),
+          rating_value:    "Nincs (csak feliratkozás)",
+          review_text:     "Nincs megadva vélemény."
         });
         newsletterBtn.textContent = 'Feliratkoztál ✓';
         showNewsletterFeedback('Köszönjük a feliratkozást! Mostantól elsőként értesülsz az újdonságainkról.', false);
@@ -1543,21 +1559,19 @@
         showReviewFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be. Próbáld frissíteni az oldalt.', true);
         return;
       }
-      if(REVIEW_TEMPLATE_ID === "YOUR_REVIEW_TEMPLATE_ID"){
-        showReviewFeedback('A vélemény küldés még nincs teljesen beállítva — hiányzik a REVIEW_TEMPLATE_ID.', true);
-        return;
-      }
 
       submitReviewBtn.disabled = true;
       submitReviewBtn.textContent = 'Küldés…';
       reviewFeedback.classList.remove('is-visible', 'is-error');
 
       try{
-        await emailjs.send(EMAILJS_SERVICE_ID, REVIEW_TEMPLATE_ID, {
-          reviewer_name: nameVal,
-          rating: rating,
-          rating_stars: '★'.repeat(rating) + '☆'.repeat(5 - rating),
-          review_text: textVal
+        await emailjs.send(EMAILJS_SERVICE_ID, CONTACT_TEMPLATE_ID, {
+          action_type:     "Értékelés és vélemény",
+          user_email:      "Nincs megadva",
+          reviewer_name:   nameVal,
+          submission_date: new Date().toLocaleString('hu-HU'),
+          rating_value:    rating + " / 5 csillag",
+          review_text:     textVal
         });
         submitReviewBtn.textContent = 'Elküldve ✓';
         showReviewFeedback('Köszönjük a véleményedet! Miután átnéztük, közzétesszük az oldalon.', false);
