@@ -221,11 +221,10 @@
   }
   .frame:hover{ transform:scale(1.02) rotate(0deg); transition:transform .35s var(--ease); z-index:4; }
 
-  /* A hero-galéria képei megnyithatók (nagyítható lightbox) */
   .hero-gallery .frame{ cursor:zoom-in; }
   .hero-gallery .frame:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
 
-  /* LIGHTBOX (kép nagyítása) */
+  /* LIGHTBOX */
   .lightbox{
     position:fixed; inset:0; z-index:3000;
     background:rgba(6,5,4,0.94);
@@ -254,37 +253,125 @@
   }
   .lightbox-close:hover{ border-color:var(--gold); color:var(--gold-bright); }
 
-  /* VÁLASZTHATÓ KÉPKERETEK (4 szín) */
+  /* VÁLASZTHATÓ KÉPKERETEK */
   .frame-colors{ background:var(--bg-raised); border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
   .frame-color-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; }
   @media (max-width:980px){ .frame-color-grid{ grid-template-columns:repeat(2, 1fr); } }
   @media (max-width:560px){ .frame-color-grid{ grid-template-columns:1fr; } }
 
-  /* TERMÉKEK */
+  /* ============================================================
+     TERMÉKEK – ÚJ SHOWCASE LAYOUT
+     ============================================================ */
   .products{ background:#0d0c0a; border-top:1px solid var(--line-soft); }
-  .product-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; }
-  .product-grid.single-product{ grid-template-columns:1fr; max-width:820px; margin:0 auto; }
-  .product-grid.single-product .product-card{
-    display:grid; grid-template-columns:1fr 1.1fr; align-items:stretch;
+
+  .product-showcase{
+    display:grid;
+    grid-template-columns:460px 1fr;
+    gap:clamp(48px, 6vw, 88px);
+    align-items:start;
   }
-  .product-grid.single-product .product-card .frame{ aspect-ratio:auto; height:100%; }
-  .product-grid.single-product .product-card-body{
-    display:flex; flex-direction:column; justify-content:center;
-    padding:clamp(28px, 4vw, 44px);
+  @media (max-width:1100px){
+    .product-showcase{ grid-template-columns:380px 1fr; }
   }
-  .product-grid.single-product .product-card-body h3{ font-size:1.4rem; }
-  .product-grid.single-product .product-card-body p{ margin-top:14px; font-size:1.02rem; line-height:1.6; }
-  .product-grid.single-product .product-card-price{ margin-top:22px; font-size:1.3rem; }
-  @media (max-width:760px){
-    .product-grid.single-product .product-card{ grid-template-columns:1fr; }
-    .product-grid.single-product .product-card .frame{ aspect-ratio:4/3; }
+  @media (max-width:860px){
+    .product-showcase{ grid-template-columns:1fr; gap:40px; }
   }
-  .product-card{ border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--bg-raised); }
-  .product-card .frame{ border:none; border-radius:0; aspect-ratio:1/1; }
-  .product-card-body{ padding:20px 22px 24px; }
-  .product-card-body h3{ font-size:1.15rem; font-weight:500; }
-  .product-card-body p{ margin-top:8px; color:var(--ink-dim); font-size:0.94rem; }
-  .product-card-price{ margin-top:14px; font-family:var(--serif); font-style:italic; color:var(--gold-bright); font-size:1.02rem; }
+
+  /* Galéria oszlop */
+  .product-gallery-col{
+    display:flex; flex-direction:column; gap:12px;
+    /* Kinyúlás a .wrap bal széléig */
+    margin-left:calc(-1 * clamp(20px, 4vw, 48px));
+  }
+  @media (max-width:860px){
+    .product-gallery-col{ margin-left:0; }
+  }
+
+  .pg-main-frame{
+    position:relative;
+    aspect-ratio:4/5;
+    overflow:hidden;
+    background:var(--bg-raised);
+    cursor:zoom-in;
+  }
+  .pg-main-frame img{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover;
+    transition:transform .45s var(--ease), opacity .25s var(--ease);
+  }
+  .pg-main-frame:hover img{ transform:scale(1.03); }
+
+  .pg-zoom-btn{
+    position:absolute; bottom:16px; right:16px; z-index:2;
+    width:38px; height:38px; border-radius:50%;
+    background:rgba(10,9,8,0.65); border:1px solid var(--line);
+    color:var(--ink-dim); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(6px);
+    transition:border-color .2s var(--ease), color .2s var(--ease);
+  }
+  .pg-zoom-btn:hover{ border-color:var(--gold); color:var(--gold-bright); }
+
+  .pg-thumbs{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:8px;
+    padding-left:clamp(20px, 4vw, 48px); /* balance the negative margin above */
+  }
+  @media (max-width:860px){
+    .pg-thumbs{ padding-left:0; }
+  }
+
+  .pg-thumb{
+    aspect-ratio:1/1;
+    overflow:hidden;
+    border-bottom:2px solid transparent;
+    cursor:pointer;
+    opacity:0.45;
+    transition:opacity .2s var(--ease), border-color .2s var(--ease);
+  }
+  .pg-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .pg-thumb:hover{ opacity:0.75; }
+  .pg-thumb.is-active{ opacity:1; border-color:var(--gold); }
+
+  /* Szöveg oszlop */
+  .product-text-col{
+    padding-top:clamp(8px, 2vw, 28px);
+    display:flex; flex-direction:column;
+  }
+  .product-eyebrow{
+    font-family:var(--serif); font-style:italic;
+    color:var(--gold-bright); font-size:1.02rem;
+    margin-bottom:16px;
+  }
+  .product-title{
+    font-family:var(--serif); font-weight:500;
+    font-size:clamp(1.75rem, 3vw, 2.5rem);
+    line-height:1.08; letter-spacing:-0.015em;
+    color:var(--ink);
+  }
+  .product-desc{
+    color:var(--ink-dim); font-size:1.02rem; line-height:1.75;
+    max-width:50ch;
+  }
+  .product-desc:first-of-type{ margin-top:24px; }
+  .product-price-line{
+    margin-top:clamp(28px, 4vw, 44px);
+    display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;
+    padding-bottom:28px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .product-price{
+    font-family:var(--serif); font-style:italic;
+    color:var(--gold-bright); font-size:clamp(1.7rem, 2.6vw, 2.2rem);
+  }
+  .product-price-note{
+    font-size:0.86rem; color:var(--ink-faint);
+  }
+  .product-actions{
+    margin-top:28px; display:flex; gap:14px; flex-wrap:wrap; align-items:center;
+  }
+  /* ============================================================ */
 
   /* VÍZIÓNK */
   .story{ background:var(--bg-raised); border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
@@ -333,7 +420,6 @@
   .upload-remove svg{ width:14px; height:14px; }
   .upload-note{ margin-top:12px; font-size:0.8rem; color:var(--ink-faint); line-height:1.5; }
 
-  /* KAPCSOLATTARTÁS / SZÁLLÍTÁS - LENYITHATÓ PANEL */
   .shipping-details{
     margin-top:22px; border:1px solid var(--line); border-radius:var(--radius);
     background:var(--bg-raised); overflow:hidden;
@@ -452,22 +538,16 @@
   .testi-quote{ font-family:var(--serif); font-style:italic; font-size:1.08rem; line-height:1.5; color:var(--ink); }
   .testi-author{ margin-top:20px; font-size:0.88rem; color:var(--ink-faint); }
 
-  /* SAJÁT VÉLEMÉNY ÍRÁSA */
+  /* SAJÁT VÉLEMÉNY */
   .review-form-wrap{
     margin-top:clamp(48px, 6vw, 72px);
     padding-top:clamp(40px, 6vw, 64px);
     border-top:1px solid var(--line);
     max-width:640px;
   }
-  .review-form-wrap h3{
-    font-size:1.35rem; font-weight:500;
-  }
-  .review-form-wrap > p{
-    margin-top:10px; color:var(--ink-dim); font-size:0.98rem; max-width:52ch;
-  }
-  .star-input{
-    display:flex; gap:6px; margin-top:22px;
-  }
+  .review-form-wrap h3{ font-size:1.35rem; font-weight:500; }
+  .review-form-wrap > p{ margin-top:10px; color:var(--ink-dim); font-size:0.98rem; max-width:52ch; }
+  .star-input{ display:flex; gap:6px; margin-top:22px; }
   .star-btn{
     background:none; border:none; padding:0; margin:0;
     font-size:2rem; line-height:1; cursor:pointer;
@@ -498,7 +578,6 @@
   }
   .newsletter-text h2{ font-size:clamp(1.7rem, 3vw, 2.3rem); }
   .newsletter-text p{ margin-top:14px; color:var(--ink-dim); font-size:1rem; max-width:48ch; }
-
   .newsletter-form{ flex:1; min-width:280px; max-width:440px; width:100%; }
   .newsletter-field{ display:flex; gap:10px; }
   .newsletter-field .text-input{ flex:1; }
@@ -510,7 +589,7 @@
     .newsletter-field .btn{ width:100%; }
   }
 
-  /* KAPCSOLAT / FOOTER */
+  /* FOOTER */
   .site-footer{ background:var(--bg); border-top:1px solid var(--line); padding:clamp(56px, 7vw, 88px) 0 28px; }
   .footer-top{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:clamp(32px, 5vw, 64px); padding-bottom:44px; }
   .footer-brand .brand{ margin-bottom:14px; }
@@ -530,19 +609,16 @@
     text-align:center;
     font-size:0.82rem; color:var(--ink-faint);
   }
-  .footer-legal-links{
-    display:flex; gap:20px; flex-wrap:wrap; justify-content:center;
-  }
+  .footer-legal-links{ display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
   .footer-legal-links a{
     color:var(--ink-dim); font-size:0.85rem;
     text-decoration:underline; text-underline-offset:3px;
     transition:color .2s var(--ease);
   }
   .footer-legal-links a:hover{ color:var(--gold-bright); }
-  .footer-bottom-copy{
-    display:flex; justify-content:center; flex-wrap:wrap; gap:10px;
-  }
+  .footer-bottom-copy{ display:flex; justify-content:center; flex-wrap:wrap; gap:10px; }
 
+  /* RESZPONZÍV */
   @media (max-width: 980px){
     .main-nav{ display:none; }
     .nav-toggle{ display:flex; }
@@ -552,14 +628,12 @@
     .frame-featured{ transform:rotate(-1.2deg); }
     .frame-small:nth-of-type(2){ transform:rotate(1.5deg) translate(6px, -6px); }
     .frame-small:nth-of-type(3){ transform:rotate(-1.8deg) translate(-2px, 10px); }
-    .product-grid{ grid-template-columns:1fr 1fr; }
     .story .wrap{ grid-template-columns:1fr; }
     .config-grid{ grid-template-columns:1fr; }
     .testi-grid{ grid-template-columns:1fr; }
     .footer-top{ grid-template-columns:1fr 1fr; }
   }
   @media (max-width: 620px){
-    .product-grid{ grid-template-columns:1fr; }
     .footer-top{ grid-template-columns:1fr; gap:32px; }
     .hero-gallery{ grid-template-columns:1fr 1fr; }
   }
@@ -584,27 +658,19 @@
   }
   .scrim.is-visible{ opacity:1; pointer-events:auto; }
 
-  /* SCROLL BEÚSZÁS ANIMÁCIÓ */
+  /* SCROLL ANIMÁCIÓ */
   .reveal{
-    opacity:0;
-    transform:translateY(22px);
+    opacity:0; transform:translateY(22px);
     transition:opacity .35s var(--ease), transform .35s var(--ease);
     will-change:opacity, transform;
   }
-  .reveal.is-visible{
-    opacity:1;
-    transform:translateY(0);
-  }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
   .reveal-group .reveal:nth-child(1){ transition-delay:0s; }
   .reveal-group .reveal:nth-child(2){ transition-delay:.06s; }
   .reveal-group .reveal:nth-child(3){ transition-delay:.12s; }
   .reveal-group .reveal:nth-child(4){ transition-delay:.18s; }
   @media (prefers-reduced-motion: reduce){
-    .reveal{
-      opacity:1 !important;
-      transform:none !important;
-      transition:none !important;
-    }
+    .reveal{ opacity:1 !important; transform:none !important; transition:none !important; }
   }
 </style>
 </head>
@@ -669,6 +735,7 @@
     </div>
   </section>
 
+  <!-- ========= TERMÉKEK ========= -->
   <section class="products" id="termekek">
     <div class="wrap">
       <div class="section-head reveal">
@@ -676,15 +743,54 @@
         <h2>Minden történetnek egyedi megvalósítás</h2>
         <p>Válaszd ki melyik megvalósítás áll legközelebb a szívedhez.</p>
       </div>
-      <div class="product-grid single-product reveal-group">
-        <article class="product-card reveal">
-          <div class="frame"><img src="images/6.jpg" alt="3D dombornyomott kép"></div>
-          <div class="product-card-body">
-            <h3>3D dombornyomott kép</h3>
-            <p>Ha otthon van saját képkereted, és a világítást is meg tudod oldani, költséghatékonyság keretében ajánljuk az egyszerű kép rendelését.</p>
-            <div class="product-card-price">9 990 Ft-tól</div>
+
+      <div class="product-showcase reveal">
+
+        <!-- BAL: galéria oszlop, kinyúlik a lap széléig -->
+        <div class="product-gallery-col">
+          <div class="pg-main-frame" id="pgMainFrame">
+            <img src="images/6.jpg" alt="3D dombornyomott kép" id="pgMainImg">
+            <button class="pg-zoom-btn" id="pgZoomBtn" aria-label="Kép nagyítása" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18">
+                <circle cx="11" cy="11" r="7"/>
+                <path d="M21 21l-4.35-4.35"/>
+                <path d="M11 8v6M8 11h6"/>
+              </svg>
+            </button>
           </div>
-        </article>
+          <!-- 4 bélyegkép -->
+          <div class="pg-thumbs" id="pgThumbs">
+            <div class="pg-thumb is-active" data-index="0">
+              <img src="images/6.jpg" alt="3D kép 1">
+            </div>
+            <div class="pg-thumb" data-index="1">
+              <img src="images/1.jpg" alt="3D kép 2">
+            </div>
+            <div class="pg-thumb" data-index="2">
+              <img src="images/2.jpg" alt="3D kép 3">
+            </div>
+            <div class="pg-thumb" data-index="3">
+              <img src="images/3.jpg" alt="3D kép 4">
+            </div>
+          </div>
+        </div>
+
+        <!-- JOBB: szöveg szabadon, nem dobozban -->
+        <div class="product-text-col">
+          <span class="product-eyebrow">3D dombornyomott kép</span>
+          <h3 class="product-title">Kézzel fogható emlék a falaidra</h3>
+          <p class="product-desc">Ha otthon van saját képkereted, és a világítást is meg tudod oldani, költséghatékonyság keretében ajánljuk az egyszerű kép rendelését.</p>
+          <p class="product-desc" style="margin-top:14px;">Minden egyes darab egyedi: a te fotód alapján modellezzük, nyomtatjuk, és kézi utómunkával finomítjuk — nem gyártósori termék, hanem valódi emlék.</p>
+          <div class="product-price-line">
+            <span class="product-price">9 990 Ft-tól</span>
+            <span class="product-price-note">Ár mérettől és kiegészítőktől függ</span>
+          </div>
+          <div class="product-actions">
+            <a href="#konfigurator" class="btn btn-primary">Saját emlékem elkészítése</a>
+            <a href="#tortenetunk" class="btn btn-outline">Hogyan készül</a>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -831,8 +937,6 @@
                 <input type="text" id="shipAddress" class="text-input" placeholder="pl. Fő utca 12., 3. emelet 2. ajtó" autocomplete="street-address">
                 <p class="field-error" id="shipAddressError">Add meg a pontos címed.</p>
               </div>
-
-              <!-- Szállítási mód: Foxpost -->
               <div class="field-group full">
                 <label class="field-label" for="shippingMethod">Szállítási mód *</label>
                 <select id="shippingMethod" class="select-input">
@@ -851,18 +955,15 @@
 
         <div class="config-panel reveal">
           <h3>Ajánlatkérés adatai</h3>
-
           <div class="base-price-row">
             <span>Alap ár</span>
             <span id="basePriceLabel">14 990 Ft</span>
           </div>
-
           <div class="field-group">
             <label class="field-label" for="customerEmail">E-mail címed</label>
             <input type="email" id="customerEmail" class="text-input" placeholder="pl. nev@example.com" autocomplete="email" required>
             <p class="field-error" id="emailError">Adj meg egy érvényes e-mail címet, hogy tudjunk válaszolni.</p>
           </div>
-
           <div class="field-group">
             <label class="field-label" for="frameSize">Képkeret mérete</label>
             <select id="frameSize" class="select-input">
@@ -871,7 +972,6 @@
               <option value="15x21|3500">15×21 cm (+3 500 Ft)</option>
             </select>
           </div>
-
           <div class="field-group">
             <label class="field-label" for="frameColor">Képkeret színe</label>
             <select id="frameColor" class="select-input">
@@ -881,7 +981,6 @@
               <option value="Bézs">Bézs</option>
             </select>
           </div>
-
           <div class="option-list">
             <label class="option-row">
               <input type="checkbox" class="opt-checkbox" data-price="1500">
@@ -892,8 +991,6 @@
               <span class="option-label"><span class="opt-name">Háttér eltávolítása</span><span class="opt-price">+0 Ft</span></span>
             </label>
           </div>
-
-          <!-- Fizetési mód -->
           <div class="field-group">
             <label class="field-label">Fizetési mód *</label>
             <div class="option-list" style="border:none;">
@@ -908,8 +1005,6 @@
             </div>
             <p class="field-hint">Online fizetés esetén a gyártás megkezdése előtt egy biztonságos fizetési linket küldünk e-mailben, miután átnéztük a feltöltött fotó minőségét.</p>
           </div>
-
-          <!-- Kuponkód -->
           <div class="coupon-row">
             <div class="coupon-input-wrap">
               <label class="field-label" for="couponCode">Kuponkód</label>
@@ -918,17 +1013,14 @@
             <button type="button" class="btn btn-outline" id="applyCouponBtn">Beváltás</button>
           </div>
           <p class="coupon-feedback" id="couponFeedback"></p>
-
           <div class="discount-row" id="discountRow">
             <span id="discountLabel">Kedvezmény</span>
             <span id="discountAmount">-0 Ft</span>
           </div>
-
           <div class="config-total">
             <span>Végösszeg</span>
             <span class="total-amount" id="totalAmount">16 180 Ft</span>
           </div>
-
           <button class="btn btn-primary btn-full" id="orderBtn" type="button">Ajánlatkérés elküldése</button>
           <p class="order-feedback" id="orderFeedback"></p>
         </div>
@@ -978,11 +1070,9 @@
         </article>
       </div>
 
-      <!-- SAJÁT VÉLEMÉNY ÍRÁSA -->
       <div class="review-form-wrap reveal">
         <h3>Van tapasztalatod velünk? Oszd meg!</h3>
         <p>Add meg az értékelésed és pár mondatban a véleményed — miután átnéztük, közzétesszük a többi vélemény közt.</p>
-
         <div class="star-input" id="starInput" role="radiogroup" aria-label="Értékelés csillagokkal">
           <button type="button" class="star-btn" data-value="1" aria-label="1 csillag">★</button>
           <button type="button" class="star-btn" data-value="2" aria-label="2 csillag">★</button>
@@ -992,19 +1082,16 @@
         </div>
         <input type="hidden" id="reviewRating" value="0">
         <p class="field-error" id="reviewRatingError">Kérjük, adj meg egy csillagértékelést.</p>
-
         <div class="field-group">
           <label class="field-label" for="reviewName">Neved</label>
           <input type="text" id="reviewName" class="text-input" placeholder="pl. Kovács Anna">
           <p class="field-error" id="reviewNameError">Add meg a neved.</p>
         </div>
-
         <div class="field-group" style="border-bottom:none;">
           <label class="field-label" for="reviewText">Véleményed</label>
           <textarea id="reviewText" class="text-input" rows="4" placeholder="Mesélj pár mondatban a tapasztalatodról..." style="resize:vertical; font-family:var(--sans);"></textarea>
           <p class="field-error" id="reviewTextError">Írj pár mondatot a véleményedről.</p>
         </div>
-
         <button class="btn btn-primary" id="submitReviewBtn" type="button" style="margin-top:8px;">Vélemény elküldése</button>
         <p class="order-feedback" id="reviewFeedback" style="text-align:left;"></p>
       </div>
@@ -1097,7 +1184,7 @@
     </div>
   </footer>
 
-  <!-- LIGHTBOX: a hero-galéria képeinek nagyítására -->
+  <!-- LIGHTBOX -->
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Kép nagyítva">
     <button class="lightbox-close" id="lightboxClose" aria-label="Bezárás" type="button">✕</button>
     <img id="lightboxImg" src="" alt="">
@@ -1107,11 +1194,10 @@
   (function(){
     "use strict";
 
-    /* ====== EMAILJS BEÁLLÍTÁSOK ====== */
     var EMAILJS_PUBLIC_KEY  = "9wk04obk2x_2ZTNsf";
     var EMAILJS_SERVICE_ID  = "service_c50lhoc";
-    var ORDER_TEMPLATE_ID   = "template_0eab2al";   // árajánlatkérés (vevő + te)
-    var CONTACT_TEMPLATE_ID = "template_d663c6g";   // hírlevél + vélemény
+    var ORDER_TEMPLATE_ID   = "template_0eab2al";
+    var CONTACT_TEMPLATE_ID = "template_d663c6g";
     var SHOP_EMAIL          = "nagyreka1911@gmail.com";
     var IMGBB_API_KEY       = "2147fe97daf100cc2e3f5783075d33ec";
 
@@ -1127,43 +1213,38 @@
     document.addEventListener('scroll', onScroll, { passive:true });
     onScroll();
 
+    /* Mobil nav */
     var navToggle = document.getElementById('navToggle');
     var mobileNav = document.getElementById('mobileNav');
     var mobileNavClose = document.getElementById('mobileNavClose');
     var scrim = document.getElementById('scrim');
     function openNav(){
-      mobileNav.classList.add('is-open');
-      scrim.classList.add('is-visible');
-      navToggle.setAttribute('aria-expanded','true');
-      document.body.style.overflow = 'hidden';
+      mobileNav.classList.add('is-open'); scrim.classList.add('is-visible');
+      navToggle.setAttribute('aria-expanded','true'); document.body.style.overflow = 'hidden';
     }
     function closeNav(){
-      mobileNav.classList.remove('is-open');
-      scrim.classList.remove('is-visible');
-      navToggle.setAttribute('aria-expanded','false');
-      document.body.style.overflow = '';
+      mobileNav.classList.remove('is-open'); scrim.classList.remove('is-visible');
+      navToggle.setAttribute('aria-expanded','false'); document.body.style.overflow = '';
     }
     navToggle.addEventListener('click', openNav);
     mobileNavClose.addEventListener('click', closeNav);
     scrim.addEventListener('click', closeNav);
     mobileNav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeNav); });
 
-    /* ====== LIGHTBOX: a hero-galéria képei nagyíthatók ====== */
+    /* ====== LIGHTBOX ====== */
     var lightbox      = document.getElementById('lightbox');
-    var lightboxImg    = document.getElementById('lightboxImg');
+    var lightboxImg   = document.getElementById('lightboxImg');
     var lightboxClose = document.getElementById('lightboxClose');
 
     function openLightbox(src, alt){
-      lightboxImg.src = src;
-      lightboxImg.alt = alt || '';
-      lightbox.classList.add('is-open');
-      document.body.style.overflow = 'hidden';
+      lightboxImg.src = src; lightboxImg.alt = alt || '';
+      lightbox.classList.add('is-open'); document.body.style.overflow = 'hidden';
     }
     function closeLightbox(){
-      lightbox.classList.remove('is-open');
-      document.body.style.overflow = '';
+      lightbox.classList.remove('is-open'); document.body.style.overflow = '';
       lightboxImg.src = '';
     }
+    /* Hero galéria lightbox */
     document.querySelectorAll('.hero-gallery .frame').forEach(function(frame){
       frame.addEventListener('click', function(){
         var img = frame.querySelector('img');
@@ -1178,14 +1259,48 @@
       });
     });
     lightboxClose.addEventListener('click', closeLightbox);
-    lightbox.addEventListener('click', function(e){
-      if(e.target === lightbox){ closeLightbox(); }
-    });
-    document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape'){ closeLightbox(); }
-    });
+    lightbox.addEventListener('click', function(e){ if(e.target === lightbox){ closeLightbox(); } });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeLightbox(); } });
 
-    /* SCROLL BEÚSZÁS ANIMÁCIÓ */
+    /* ====== TERMÉKEK GALÉRIA ====== */
+    var pgSrcs = [
+      { src:'images/6.jpg', alt:'3D dombornyomott kép' },
+      { src:'images/1.jpg', alt:'3D dombornyomott kép 2' },
+      { src:'images/2.jpg', alt:'3D dombornyomott kép 3' },
+      { src:'images/3.jpg', alt:'3D dombornyomott kép 4' }
+    ];
+    var pgMainImg   = document.getElementById('pgMainImg');
+    var pgZoomBtn   = document.getElementById('pgZoomBtn');
+    var pgMainFrame = document.getElementById('pgMainFrame');
+    var pgThumbs    = document.querySelectorAll('.pg-thumb');
+    var pgActiveIdx = 0;
+
+    function pgSelect(idx){
+      pgActiveIdx = idx;
+      pgMainImg.style.opacity = '0';
+      setTimeout(function(){
+        pgMainImg.src = pgSrcs[idx].src;
+        pgMainImg.alt = pgSrcs[idx].alt;
+        pgMainImg.style.opacity = '1';
+      }, 160);
+      pgThumbs.forEach(function(t, i){ t.classList.toggle('is-active', i === idx); });
+    }
+    pgThumbs.forEach(function(thumb){
+      thumb.addEventListener('click', function(){
+        pgSelect(parseInt(thumb.getAttribute('data-index'), 10));
+      });
+    });
+    function openProductLightbox(){
+      openLightbox(pgSrcs[pgActiveIdx].src, pgSrcs[pgActiveIdx].alt);
+    }
+    if(pgZoomBtn){ pgZoomBtn.addEventListener('click', openProductLightbox); }
+    if(pgMainFrame){
+      pgMainFrame.addEventListener('click', function(e){
+        if(e.target !== pgZoomBtn && !pgZoomBtn.contains(e.target)){ openProductLightbox(); }
+      });
+    }
+
+    /* ====== SCROLL ANIMÁCIÓ ====== */
     var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var revealEls = document.querySelectorAll('.reveal');
     if(prefersReducedMotion || !('IntersectionObserver' in window)){
@@ -1193,31 +1308,28 @@
     } else {
       var revealObserver = new IntersectionObserver(function(entries){
         entries.forEach(function(entry){
-          if(entry.isIntersecting){
-            entry.target.classList.add('is-visible');
-            revealObserver.unobserve(entry.target);
-          }
+          if(entry.isIntersecting){ entry.target.classList.add('is-visible'); revealObserver.unobserve(entry.target); }
         });
       }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
       revealEls.forEach(function(el){ revealObserver.observe(el); });
     }
 
-    var uploadZone   = document.getElementById('uploadZone');
-    var uploadError  = document.getElementById('uploadError');
-    var fileInput    = document.getElementById('fileInput');
-    var uploadPreview= document.getElementById('uploadPreview');
-    var previewImg   = document.getElementById('previewImg');
-    var previewName  = document.getElementById('previewName');
-    var previewMeta  = document.getElementById('previewMeta');
-    var removeUpload = document.getElementById('removeUpload');
-    var uploadedFile = null;
+    /* ====== FÁJL FELTÖLTÉS ====== */
+    var uploadZone    = document.getElementById('uploadZone');
+    var uploadError   = document.getElementById('uploadError');
+    var fileInput     = document.getElementById('fileInput');
+    var uploadPreview = document.getElementById('uploadPreview');
+    var previewImg    = document.getElementById('previewImg');
+    var previewName   = document.getElementById('previewName');
+    var previewMeta   = document.getElementById('previewMeta');
+    var removeUpload  = document.getElementById('removeUpload');
+    var uploadedFile  = null;
 
     function formatBytes(bytes){
       if(bytes < 1024) return bytes + ' B';
       if(bytes < 1024*1024) return (bytes/1024).toFixed(0) + ' KB';
       return (bytes/(1024*1024)).toFixed(1) + ' MB';
     }
-
     function handleFile(file){
       if(!file || file.type.indexOf('image/') !== 0) return;
       uploadedFile = file;
@@ -1232,21 +1344,12 @@
       };
       reader.readAsDataURL(file);
     }
-
-    fileInput.addEventListener('change', function(e){
-      if(e.target.files && e.target.files[0]){ handleFile(e.target.files[0]); }
-    });
+    fileInput.addEventListener('change', function(e){ if(e.target.files && e.target.files[0]){ handleFile(e.target.files[0]); } });
     ['dragenter','dragover'].forEach(function(evt){
-      uploadZone.addEventListener(evt, function(e){
-        e.preventDefault(); e.stopPropagation();
-        uploadZone.classList.add('is-dragover');
-      });
+      uploadZone.addEventListener(evt, function(e){ e.preventDefault(); e.stopPropagation(); uploadZone.classList.add('is-dragover'); });
     });
     ['dragleave','drop'].forEach(function(evt){
-      uploadZone.addEventListener(evt, function(e){
-        e.preventDefault(); e.stopPropagation();
-        uploadZone.classList.remove('is-dragover');
-      });
+      uploadZone.addEventListener(evt, function(e){ e.preventDefault(); e.stopPropagation(); uploadZone.classList.remove('is-dragover'); });
     });
     uploadZone.addEventListener('drop', function(e){
       var dt = e.dataTransfer;
@@ -1254,13 +1357,12 @@
     });
     removeUpload.addEventListener('click', function(e){
       e.preventDefault(); e.stopPropagation();
-      uploadedFile = null;
-      fileInput.value = '';
-      previewImg.src = '';
+      uploadedFile = null; fileInput.value = ''; previewImg.src = '';
       uploadPreview.classList.remove('is-visible');
     });
 
-    var BASE_PRICE = 14990;
+    /* ====== ÁR SZÁMÍTÁS ====== */
+    var BASE_PRICE    = 14990;
     var checkboxes    = document.querySelectorAll('.opt-checkbox');
     var frameSizeSel  = document.getElementById('frameSize');
     var frameColorSel = document.getElementById('frameColor');
@@ -1276,16 +1378,12 @@
     var shipZipEl     = document.getElementById('shipZip');
     var shipCityEl    = document.getElementById('shipCity');
     var shipAddressEl = document.getElementById('shipAddress');
+    var shippingMethodSel    = document.getElementById('shippingMethod');
+    var foxpostAutomataGroup = document.getElementById('foxpostAutomataGroup');
+    var foxpostAutomataEl    = document.getElementById('foxpostAutomata');
+    var foxpostAutomataError = document.getElementById('foxpostAutomataError');
 
-    /* szállítási mód (Foxpost) */
-    var shippingMethodSel     = document.getElementById('shippingMethod');
-    var foxpostAutomataGroup  = document.getElementById('foxpostAutomataGroup');
-    var foxpostAutomataEl     = document.getElementById('foxpostAutomata');
-    var foxpostAutomataError  = document.getElementById('foxpostAutomataError');
-
-    function isAutomataSelected(){
-      return shippingMethodSel.value.indexOf('csomagautomata') !== -1;
-    }
+    function isAutomataSelected(){ return shippingMethodSel.value.indexOf('csomagautomata') !== -1; }
     function updateFoxpostFieldVisibility(){
       foxpostAutomataGroup.style.display = isAutomataSelected() ? '' : 'none';
       if(!isAutomataSelected()){
@@ -1293,40 +1391,30 @@
         foxpostAutomataError.classList.remove('is-visible');
       }
     }
-    shippingMethodSel.addEventListener('change', function(){
-      updateFoxpostFieldVisibility();
-      recalcTotal();
-    });
+    shippingMethodSel.addEventListener('change', function(){ updateFoxpostFieldVisibility(); recalcTotal(); });
     updateFoxpostFieldVisibility();
 
-    /* fizetési mód */
     var paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
     paymentRadios.forEach(function(r){ r.addEventListener('change', recalcTotal); });
 
-    /* kuponkód */
     var COUPONS = {
       'NYITANAS10':     { type:'percent', value:10 },
       'KEDVEZMENY1000': { type:'fixed',   value:1000 }
     };
-    var appliedCoupon = null;
-    var couponCodeEl    = document.getElementById('couponCode');
-    var applyCouponBtn  = document.getElementById('applyCouponBtn');
-    var couponFeedback  = document.getElementById('couponFeedback');
+    var appliedCoupon    = null;
+    var couponCodeEl     = document.getElementById('couponCode');
+    var applyCouponBtn   = document.getElementById('applyCouponBtn');
+    var couponFeedback   = document.getElementById('couponFeedback');
     var discountRow      = document.getElementById('discountRow');
     var discountLabelEl  = document.getElementById('discountLabel');
     var discountAmountEl = document.getElementById('discountAmount');
 
     function formatHuf(n){ return n.toLocaleString('hu-HU') + ' Ft'; }
-
     function getSizeInfo(){
       var parts = frameSizeSel.value.split('|');
       return { label: frameSizeSel.options[frameSizeSel.selectedIndex].text, delta: parseInt(parts[1], 10) || 0 };
     }
-
-    function getFrameColor(){
-      return frameColorSel.value;
-    }
-
+    function getFrameColor(){ return frameColorSel.value; }
     function getCheckedOptions(){
       var chosen = [];
       checkboxes.forEach(function(cb){
@@ -1337,24 +1425,20 @@
       });
       return chosen;
     }
-
     function getShippingInfo(){
       var parts = shippingMethodSel.value.split('|');
       return { label: parts[0], price: parseInt(parts[1],10) || 0 };
     }
-
     function getPaymentInfo(){
       var checked = document.querySelector('input[name="paymentMethod"]:checked');
       var parts = (checked ? checked.value : 'Banki átutalás / Online fizetés|0').split('|');
       return { label: parts[0], price: parseInt(parts[1],10) || 0 };
     }
-
     function recalcTotal(){
       var subtotal = BASE_PRICE + getSizeInfo().delta;
       getCheckedOptions().forEach(function(o){ subtotal += o.price; });
       subtotal += getShippingInfo().price;
       subtotal += getPaymentInfo().price;
-
       var discount = 0;
       if(appliedCoupon){
         discount = appliedCoupon.type === 'percent'
@@ -1362,9 +1446,7 @@
           : appliedCoupon.value;
         if(discount > subtotal) discount = subtotal;
       }
-
       var total = subtotal - discount;
-
       if(discount > 0){
         discountLabelEl.textContent = 'Kedvezmény (' + appliedCoupon.code + ')';
         discountAmountEl.textContent = '-' + formatHuf(discount);
@@ -1372,7 +1454,6 @@
       } else {
         discountRow.classList.remove('is-visible');
       }
-
       totalAmountEl.textContent = formatHuf(total);
       return { subtotal: subtotal, discount: discount, total: total };
     }
@@ -1384,9 +1465,7 @@
       var code = couponCodeEl.value.trim().toUpperCase();
       couponCodeEl.classList.remove('has-error');
       couponFeedback.classList.remove('is-visible', 'is-error');
-
       if(!code){ return; }
-
       if(COUPONS[code]){
         appliedCoupon = { code: code, type: COUPONS[code].type, value: COUPONS[code].value };
         couponFeedback.textContent = 'A(z) "' + code + '" kuponkód sikeresen alkalmazva!';
@@ -1400,10 +1479,7 @@
       recalcTotal();
     });
 
-    function isValidEmail(value){
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-    }
-
+    function isValidEmail(value){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }
     function showFeedback(text, isError){
       orderFeedback.textContent = text;
       orderFeedback.classList.toggle('is-error', !!isError);
@@ -1413,23 +1489,17 @@
     /* ====== ÁRAJÁNLATKÉRÉS ====== */
     orderBtn.addEventListener('click', async function(){
       var hasError = false;
-
       if(!uploadedFile){
         uploadZone.classList.add('has-error');
         uploadError.classList.add('is-visible');
         hasError = true;
       }
-
       var emailVal = emailInput.value.trim();
       if(!isValidEmail(emailVal)){
-        emailInput.classList.add('has-error');
-        emailError.classList.add('is-visible');
-        hasError = true;
+        emailInput.classList.add('has-error'); emailError.classList.add('is-visible'); hasError = true;
       } else {
-        emailInput.classList.remove('has-error');
-        emailError.classList.remove('is-visible');
+        emailInput.classList.remove('has-error'); emailError.classList.remove('is-visible');
       }
-
       var shippingFields = [
         { input: shipNameEl,    error: document.getElementById('shipNameError') },
         { input: shipPhoneEl,   error: document.getElementById('shipPhoneError') },
@@ -1440,72 +1510,44 @@
       var shippingHasError = false;
       shippingFields.forEach(function(f){
         if(!f.input.value.trim()){
-          f.input.classList.add('has-error');
-          f.error.classList.add('is-visible');
-          shippingHasError = true;
+          f.input.classList.add('has-error'); f.error.classList.add('is-visible'); shippingHasError = true;
         } else {
-          f.input.classList.remove('has-error');
-          f.error.classList.remove('is-visible');
+          f.input.classList.remove('has-error'); f.error.classList.remove('is-visible');
         }
       });
-
       if(isAutomataSelected() && !foxpostAutomataEl.value.trim()){
-        foxpostAutomataEl.classList.add('has-error');
-        foxpostAutomataError.classList.add('is-visible');
-        shippingHasError = true;
+        foxpostAutomataEl.classList.add('has-error'); foxpostAutomataError.classList.add('is-visible'); shippingHasError = true;
       } else {
-        foxpostAutomataEl.classList.remove('has-error');
-        foxpostAutomataError.classList.remove('is-visible');
+        foxpostAutomataEl.classList.remove('has-error'); foxpostAutomataError.classList.remove('is-visible');
       }
-
-      if(shippingHasError){
-        shippingDetailsEl.open = true;
-        hasError = true;
-      }
-
-      if(hasError){
-        orderFeedback.classList.remove('is-visible');
-        return;
-      }
-
+      if(shippingHasError){ shippingDetailsEl.open = true; hasError = true; }
+      if(hasError){ orderFeedback.classList.remove('is-visible'); return; }
       if(!window.emailjs){
-        showFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be. Próbáld frissíteni az oldalt.', true);
-        return;
+        showFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be. Próbáld frissíteni az oldalt.', true); return;
       }
-
-      var totals      = recalcTotal();
-      var size        = getSizeInfo();
-      var color       = getFrameColor();
-      var shipping    = getShippingInfo();
-      var payment     = getPaymentInfo();
-      var options     = getCheckedOptions();
+      var totals   = recalcTotal();
+      var size     = getSizeInfo();
+      var color    = getFrameColor();
+      var shipping = getShippingInfo();
+      var payment  = getPaymentInfo();
+      var options  = getCheckedOptions();
       var optionsText = options.length
         ? options.map(function(o){ return o.name + ' (+' + formatHuf(o.price) + ')'; }).join(', ')
         : 'Nincs kiválasztott kiegészítő';
-
       orderBtn.disabled = true;
       orderFeedback.classList.remove('is-visible', 'is-error');
-
       try{
         orderBtn.textContent = 'Kép feltöltése folyamatban…';
-
         var formData = new FormData();
         formData.append('image', uploadedFile);
-
-        var uploadResponse = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY, {
-          method: 'POST',
-          body: formData
-        });
+        var uploadResponse = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY, { method:'POST', body:formData });
         var uploadResult = await uploadResponse.json();
         if(!uploadResult || !uploadResult.success){
-          console.error('imgbb válasz:', uploadResult);
           var imgbbMsg = (uploadResult && uploadResult.error && uploadResult.error.message) || ('HTTP ' + uploadResponse.status);
           throw new Error('A kép feltöltése sikertelen volt (' + imgbbMsg + ').');
         }
         var photoUrl = uploadResult.data.url;
-
         orderBtn.textContent = 'Küldés folyamatban…';
-
         var templateParams = {
           name:            shipNameEl.value.trim(),
           title:           "3D Memories megrendelés — " + size.label + " (" + formatHuf(totals.total) + ")",
@@ -1529,202 +1571,119 @@
           foxpost_automata:isAutomataSelected() ? foxpostAutomataEl.value.trim() : 'Nem releváns (házhozszállítás)',
           payment_method:  payment.label
         };
-
-        var customerParams = Object.assign({}, templateParams, {
-          to_email: emailVal,      // a vevő megkapja
-          reply_to: SHOP_EMAIL     // ha válaszol, hozzád érkezik
-        });
-        var shopParams = Object.assign({}, templateParams, {
-          to_email: SHOP_EMAIL,    // te is megkapod
-          reply_to: emailVal       // ha válaszolsz, a vevőnek megy
-        });
-
+        var customerParams = Object.assign({}, templateParams, { to_email: emailVal, reply_to: SHOP_EMAIL });
+        var shopParams     = Object.assign({}, templateParams, { to_email: SHOP_EMAIL, reply_to: emailVal });
         await Promise.all([
           emailjs.send(EMAILJS_SERVICE_ID, ORDER_TEMPLATE_ID, customerParams),
           emailjs.send(EMAILJS_SERVICE_ID, ORDER_TEMPLATE_ID, shopParams)
         ]);
-
         orderBtn.textContent = 'Elküldve ✓';
         showFeedback('Köszönjük! Az ajánlatkérésedet (' + formatHuf(totals.total) + ') megkaptuk, hamarosan válaszolunk.', false);
-        window.setTimeout(function(){
-          orderBtn.disabled = false;
-          orderBtn.textContent = 'Ajánlatkérés elküldése';
-        }, 3200);
-
+        window.setTimeout(function(){ orderBtn.disabled = false; orderBtn.textContent = 'Ajánlatkérés elküldése'; }, 3200);
       } catch(err){
         console.error('Hiba a küldés során:', err);
-        orderBtn.disabled = false;
-        orderBtn.textContent = 'Ajánlatkérés elküldése';
+        orderBtn.disabled = false; orderBtn.textContent = 'Ajánlatkérés elküldése';
         showFeedback('Sajnos nem sikerült elküldeni az ajánlatkérést: ' + (err.message || 'ismeretlen hiba') + '. Kérjük, próbáld újra.', true);
       }
     });
 
-    /* ====== HÍRLEVÉL FELIRATKOZÁS ====== */
+    /* ====== HÍRLEVÉL ====== */
     var newsletterForm     = document.getElementById('newsletterForm');
     var newsletterEmailEl  = document.getElementById('newsletterEmail');
     var newsletterError    = document.getElementById('newsletterError');
     var newsletterFeedback = document.getElementById('newsletterFeedback');
     var newsletterBtn      = document.getElementById('newsletterBtn');
-
     function showNewsletterFeedback(text, isError){
       newsletterFeedback.textContent = text;
       newsletterFeedback.classList.toggle('is-error', !!isError);
       newsletterFeedback.classList.add('is-visible');
     }
-
     newsletterForm.addEventListener('submit', async function(e){
       e.preventDefault();
-
       var subscriberEmail = newsletterEmailEl.value.trim();
       if(!isValidEmail(subscriberEmail)){
-        newsletterEmailEl.classList.add('has-error');
-        newsletterError.classList.add('is-visible');
-        newsletterFeedback.classList.remove('is-visible');
-        return;
+        newsletterEmailEl.classList.add('has-error'); newsletterError.classList.add('is-visible');
+        newsletterFeedback.classList.remove('is-visible'); return;
       }
-      newsletterEmailEl.classList.remove('has-error');
-      newsletterError.classList.remove('is-visible');
-
-      if(!window.emailjs){
-        showNewsletterFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be. Próbáld frissíteni az oldalt.', true);
-        return;
-      }
-
-      newsletterBtn.disabled = true;
-      newsletterBtn.textContent = 'Küldés…';
+      newsletterEmailEl.classList.remove('has-error'); newsletterError.classList.remove('is-visible');
+      if(!window.emailjs){ showNewsletterFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be.', true); return; }
+      newsletterBtn.disabled = true; newsletterBtn.textContent = 'Küldés…';
       newsletterFeedback.classList.remove('is-visible', 'is-error');
-
       try{
         await emailjs.send(EMAILJS_SERVICE_ID, CONTACT_TEMPLATE_ID, {
-          action_type:     "Hírlevél feliratkozás",
-          user_email:      subscriberEmail,
-          reviewer_name:   "Nincs megadva",
-          submission_date: new Date().toLocaleString('hu-HU'),
-          rating_value:    "Nincs (csak feliratkozás)",
-          review_text:     "Nincs megadva vélemény."
+          action_type:'Hírlevél feliratkozás', user_email:subscriberEmail,
+          reviewer_name:'Nincs megadva', submission_date:new Date().toLocaleString('hu-HU'),
+          rating_value:'Nincs (csak feliratkozás)', review_text:'Nincs megadva vélemény.'
         });
         newsletterBtn.textContent = 'Feliratkoztál ✓';
         showNewsletterFeedback('Köszönjük a feliratkozást! Mostantól elsőként értesülsz az újdonságainkról.', false);
         newsletterEmailEl.value = '';
-        window.setTimeout(function(){
-          newsletterBtn.disabled = false;
-          newsletterBtn.textContent = 'Feliratkozom';
-        }, 3200);
+        window.setTimeout(function(){ newsletterBtn.disabled = false; newsletterBtn.textContent = 'Feliratkozom'; }, 3200);
       } catch(err){
-        console.error('Hiba a hírlevél-feliratkozás során:', err);
-        newsletterBtn.disabled = false;
-        newsletterBtn.textContent = 'Feliratkozom';
+        newsletterBtn.disabled = false; newsletterBtn.textContent = 'Feliratkozom';
         showNewsletterFeedback('Sajnos nem sikerült elküldeni a feliratkozást. Kérjük, próbáld újra.', true);
       }
     });
 
-    /* ====== SAJÁT VÉLEMÉNY BEKÜLDÉSE ====== */
-    var starButtons        = document.querySelectorAll('.star-btn');
-    var starInputWrap      = document.getElementById('starInput');
-    var reviewRatingInput  = document.getElementById('reviewRating');
-    var reviewRatingError  = document.getElementById('reviewRatingError');
-    var reviewNameEl       = document.getElementById('reviewName');
-    var reviewNameError    = document.getElementById('reviewNameError');
-    var reviewTextEl       = document.getElementById('reviewText');
-    var reviewTextError    = document.getElementById('reviewTextError');
-    var submitReviewBtn    = document.getElementById('submitReviewBtn');
-    var reviewFeedback     = document.getElementById('reviewFeedback');
+    /* ====== VÉLEMÉNY BEKÜLDÉS ====== */
+    var starButtons       = document.querySelectorAll('.star-btn');
+    var starInputWrap     = document.getElementById('starInput');
+    var reviewRatingInput = document.getElementById('reviewRating');
+    var reviewRatingError = document.getElementById('reviewRatingError');
+    var reviewNameEl      = document.getElementById('reviewName');
+    var reviewNameError   = document.getElementById('reviewNameError');
+    var reviewTextEl      = document.getElementById('reviewText');
+    var reviewTextError   = document.getElementById('reviewTextError');
+    var submitReviewBtn   = document.getElementById('submitReviewBtn');
+    var reviewFeedback    = document.getElementById('reviewFeedback');
 
     function paintStars(value){
       starButtons.forEach(function(btn){
-        var v = parseInt(btn.getAttribute('data-value'), 10);
-        btn.classList.toggle('is-active', v <= value);
+        btn.classList.toggle('is-active', parseInt(btn.getAttribute('data-value'),10) <= value);
       });
     }
     starButtons.forEach(function(btn){
       btn.addEventListener('click', function(){
-        var v = parseInt(btn.getAttribute('data-value'), 10);
-        reviewRatingInput.value = v;
-        paintStars(v);
+        var v = parseInt(btn.getAttribute('data-value'),10);
+        reviewRatingInput.value = v; paintStars(v);
         reviewRatingError.classList.remove('is-visible');
       });
-      btn.addEventListener('mouseenter', function(){
-        paintStars(parseInt(btn.getAttribute('data-value'), 10));
-      });
+      btn.addEventListener('mouseenter', function(){ paintStars(parseInt(btn.getAttribute('data-value'),10)); });
     });
-    starInputWrap.addEventListener('mouseleave', function(){
-      paintStars(parseInt(reviewRatingInput.value, 10) || 0);
-    });
+    starInputWrap.addEventListener('mouseleave', function(){ paintStars(parseInt(reviewRatingInput.value,10)||0); });
 
     function showReviewFeedback(text, isError){
       reviewFeedback.textContent = text;
       reviewFeedback.classList.toggle('is-error', !!isError);
       reviewFeedback.classList.add('is-visible');
     }
-
     submitReviewBtn.addEventListener('click', async function(){
       var hasError = false;
-      var rating = parseInt(reviewRatingInput.value, 10) || 0;
-
-      if(rating < 1){
-        reviewRatingError.classList.add('is-visible');
-        hasError = true;
-      } else {
-        reviewRatingError.classList.remove('is-visible');
-      }
-
+      var rating = parseInt(reviewRatingInput.value,10)||0;
+      if(rating < 1){ reviewRatingError.classList.add('is-visible'); hasError = true; }
+      else { reviewRatingError.classList.remove('is-visible'); }
       var nameVal = reviewNameEl.value.trim();
-      if(!nameVal){
-        reviewNameEl.classList.add('has-error');
-        reviewNameError.classList.add('is-visible');
-        hasError = true;
-      } else {
-        reviewNameEl.classList.remove('has-error');
-        reviewNameError.classList.remove('is-visible');
-      }
-
+      if(!nameVal){ reviewNameEl.classList.add('has-error'); reviewNameError.classList.add('is-visible'); hasError = true; }
+      else { reviewNameEl.classList.remove('has-error'); reviewNameError.classList.remove('is-visible'); }
       var textVal = reviewTextEl.value.trim();
-      if(!textVal){
-        reviewTextEl.classList.add('has-error');
-        reviewTextError.classList.add('is-visible');
-        hasError = true;
-      } else {
-        reviewTextEl.classList.remove('has-error');
-        reviewTextError.classList.remove('is-visible');
-      }
-
-      if(hasError){
-        reviewFeedback.classList.remove('is-visible');
-        return;
-      }
-
-      if(!window.emailjs){
-        showReviewFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be. Próbáld frissíteni az oldalt.', true);
-        return;
-      }
-
-      submitReviewBtn.disabled = true;
-      submitReviewBtn.textContent = 'Küldés…';
+      if(!textVal){ reviewTextEl.classList.add('has-error'); reviewTextError.classList.add('is-visible'); hasError = true; }
+      else { reviewTextEl.classList.remove('has-error'); reviewTextError.classList.remove('is-visible'); }
+      if(hasError){ reviewFeedback.classList.remove('is-visible'); return; }
+      if(!window.emailjs){ showReviewFeedback('Hiba történt: az e-mail küldő nem tölthető be.', true); return; }
+      submitReviewBtn.disabled = true; submitReviewBtn.textContent = 'Küldés…';
       reviewFeedback.classList.remove('is-visible', 'is-error');
-
       try{
         await emailjs.send(EMAILJS_SERVICE_ID, CONTACT_TEMPLATE_ID, {
-          action_type:     "Értékelés és vélemény",
-          user_email:      "Nincs megadva",
-          reviewer_name:   nameVal,
-          submission_date: new Date().toLocaleString('hu-HU'),
-          rating_value:    rating + " / 5 csillag",
-          review_text:     textVal
+          action_type:'Értékelés és vélemény', user_email:'Nincs megadva',
+          reviewer_name:nameVal, submission_date:new Date().toLocaleString('hu-HU'),
+          rating_value:rating + ' / 5 csillag', review_text:textVal
         });
         submitReviewBtn.textContent = 'Elküldve ✓';
         showReviewFeedback('Köszönjük a véleményedet! Miután átnéztük, közzétesszük az oldalon.', false);
-        reviewNameEl.value = '';
-        reviewTextEl.value = '';
-        reviewRatingInput.value = '0';
-        paintStars(0);
-        window.setTimeout(function(){
-          submitReviewBtn.disabled = false;
-          submitReviewBtn.textContent = 'Vélemény elküldése';
-        }, 3200);
+        reviewNameEl.value = ''; reviewTextEl.value = ''; reviewRatingInput.value = '0'; paintStars(0);
+        window.setTimeout(function(){ submitReviewBtn.disabled = false; submitReviewBtn.textContent = 'Vélemény elküldése'; }, 3200);
       } catch(err){
-        console.error('Hiba a vélemény küldése során:', err);
-        submitReviewBtn.disabled = false;
-        submitReviewBtn.textContent = 'Vélemény elküldése';
+        submitReviewBtn.disabled = false; submitReviewBtn.textContent = 'Vélemény elküldése';
         showReviewFeedback('Sajnos nem sikerült elküldeni a véleményedet. Kérjük, próbáld újra.', true);
       }
     });
