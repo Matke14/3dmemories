@@ -259,9 +259,7 @@
   @media (max-width:980px){ .frame-color-grid{ grid-template-columns:repeat(2, 1fr); } }
   @media (max-width:560px){ .frame-color-grid{ grid-template-columns:1fr; } }
 
-  /* ============================================================
-     TERMÉKEK – ÚJ SHOWCASE LAYOUT
-     ============================================================ */
+  /* TERMÉKEK */
   .products{ background:#0d0c0a; border-top:1px solid var(--line-soft); }
 
   .product-showcase{
@@ -280,7 +278,6 @@
   /* Galéria oszlop */
   .product-gallery-col{
     display:flex; flex-direction:column; gap:12px;
-    /* Kinyúlás a .wrap bal széléig */
     margin-left:calc(-1 * clamp(20px, 4vw, 48px));
   }
   @media (max-width:860px){
@@ -312,11 +309,28 @@
   }
   .pg-zoom-btn:hover{ border-color:var(--gold); color:var(--gold-bright); }
 
+  /* Galéria nyíl navigáció */
+  .pg-nav-btn{
+    position:absolute; top:50%; z-index:3;
+    transform:translateY(-50%);
+    width:42px; height:42px; border-radius:50%;
+    background:rgba(10,9,8,0.72); border:1px solid var(--line);
+    color:var(--ink); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(8px);
+    transition:border-color .2s var(--ease), background .2s var(--ease), color .2s var(--ease);
+    flex-shrink:0;
+  }
+  .pg-nav-btn:hover{ border-color:var(--gold); color:var(--gold-bright); background:rgba(10,9,8,0.9); }
+  .pg-nav-btn svg{ width:18px; height:18px; pointer-events:none; }
+  .pg-nav-prev{ left:14px; }
+  .pg-nav-next{ right:14px; }
+
   .pg-thumbs{
     display:grid;
     grid-template-columns:repeat(4, 1fr);
     gap:8px;
-    padding-left:clamp(20px, 4vw, 48px); /* balance the negative margin above */
+    padding-left:clamp(20px, 4vw, 48px);
   }
   @media (max-width:860px){
     .pg-thumbs{ padding-left:0; }
@@ -371,7 +385,6 @@
   .product-actions{
     margin-top:28px; display:flex; gap:14px; flex-wrap:wrap; align-items:center;
   }
-  /* ============================================================ */
 
   /* VÍZIÓNK */
   .story{ background:var(--bg-raised); border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
@@ -750,6 +763,12 @@
         <div class="product-gallery-col">
           <div class="pg-main-frame" id="pgMainFrame">
             <img src="images/6.jpg" alt="3D dombornyomott kép" id="pgMainImg">
+            <button class="pg-nav-btn pg-nav-prev" id="pgPrevBtn" aria-label="Előző kép" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button class="pg-nav-btn pg-nav-next" id="pgNextBtn" aria-label="Következő kép" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
             <button class="pg-zoom-btn" id="pgZoomBtn" aria-label="Kép nagyítása" type="button">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18">
                 <circle cx="11" cy="11" r="7"/>
@@ -775,7 +794,7 @@
           </div>
         </div>
 
-        <!-- JOBB: szöveg szabadon, nem dobozban -->
+        <!-- JOBB: szöveg szabadon -->
         <div class="product-text-col">
           <span class="product-eyebrow">3D dombornyomott kép</span>
           <h3 class="product-title">Kézzel fogható emlék a falaidra</h3>
@@ -969,7 +988,6 @@
             <select id="frameSize" class="select-input">
               <option value="10x15|0">10×15 cm — alapméret</option>
               <option value="13x18|2000">13×18 cm (+2 000 Ft)</option>
-              <option value="15x21|3500">15×21 cm (+3 500 Ft)</option>
             </select>
           </div>
           <div class="field-group">
@@ -1271,6 +1289,8 @@
     ];
     var pgMainImg   = document.getElementById('pgMainImg');
     var pgZoomBtn   = document.getElementById('pgZoomBtn');
+    var pgPrevBtn   = document.getElementById('pgPrevBtn');
+    var pgNextBtn   = document.getElementById('pgNextBtn');
     var pgMainFrame = document.getElementById('pgMainFrame');
     var pgThumbs    = document.querySelectorAll('.pg-thumb');
     var pgActiveIdx = 0;
@@ -1285,18 +1305,37 @@
       }, 160);
       pgThumbs.forEach(function(t, i){ t.classList.toggle('is-active', i === idx); });
     }
+
     pgThumbs.forEach(function(thumb){
       thumb.addEventListener('click', function(){
         pgSelect(parseInt(thumb.getAttribute('data-index'), 10));
       });
     });
+
+    if(pgPrevBtn){
+      pgPrevBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var prevIdx = (pgActiveIdx - 1 + pgSrcs.length) % pgSrcs.length;
+        pgSelect(prevIdx);
+      });
+    }
+
+    if(pgNextBtn){
+      pgNextBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var nextIdx = (pgActiveIdx + 1) % pgSrcs.length;
+        pgSelect(nextIdx);
+      });
+    }
+
     function openProductLightbox(){
       openLightbox(pgSrcs[pgActiveIdx].src, pgSrcs[pgActiveIdx].alt);
     }
     if(pgZoomBtn){ pgZoomBtn.addEventListener('click', openProductLightbox); }
     if(pgMainFrame){
       pgMainFrame.addEventListener('click', function(e){
-        if(e.target !== pgZoomBtn && !pgZoomBtn.contains(e.target)){ openProductLightbox(); }
+        if(e.target.closest('.pg-nav-btn') || e.target.closest('.pg-zoom-btn')) return;
+        openProductLightbox();
       });
     }
 
@@ -1372,7 +1411,6 @@
     var emailInput    = document.getElementById('customerEmail');
     var emailError    = document.getElementById('emailError');
     var customNotesEl = document.getElementById('customNotes');
-    var shippingDetailsEl = document.getElementById('shippingDetails');
     var shipNameEl    = document.getElementById('shipName');
     var shipPhoneEl   = document.getElementById('shipPhone');
     var shipZipEl     = document.getElementById('shipZip');
@@ -1500,196 +1538,188 @@
       } else {
         emailInput.classList.remove('has-error'); emailError.classList.remove('is-visible');
       }
-      var shippingFields = [
-        { input: shipNameEl,    error: document.getElementById('shipNameError') },
-        { input: shipPhoneEl,   error: document.getElementById('shipPhoneError') },
-        { input: shipZipEl,     error: document.getElementById('shipZipError') },
-        { input: shipCityEl,    error: document.getElementById('shipCityError') },
-        { input: shipAddressEl, error: document.getElementById('shipAddressError') }
-      ];
-      var shippingHasError = false;
-      shippingFields.forEach(function(f){
-        if(!f.input.value.trim()){
-          f.input.classList.add('has-error'); f.error.classList.add('is-visible'); shippingHasError = true;
-        } else {
-          f.input.classList.remove('has-error'); f.error.classList.remove('is-visible');
-        }
-      });
-      if(isAutomataSelected() && !foxpostAutomataEl.value.trim()){
-        foxpostAutomataEl.classList.add('has-error'); foxpostAutomataError.classList.add('is-visible'); shippingHasError = true;
+
+      var shipNameVal = shipNameEl.value.trim();
+      var shipPhoneVal = shipPhoneEl.value.trim();
+      var shipZipVal = shipZipEl.value.trim();
+      var shipCityVal = shipCityEl.value.trim();
+      var shipAddressVal = shipAddressEl.value.trim();
+      var foxpostAutomataVal = foxpostAutomataEl.value.trim();
+
+      if(!shipNameVal){ shipNameEl.classList.add('has-error'); document.getElementById('shipNameError').classList.add('is-visible'); hasError = true; }
+      else { shipNameEl.classList.remove('has-error'); document.getElementById('shipNameError').classList.remove('is-visible'); }
+
+      if(!shipPhoneVal){ shipPhoneEl.classList.add('has-error'); document.getElementById('shipPhoneError').classList.add('is-visible'); hasError = true; }
+      else { shipPhoneEl.classList.remove('has-error'); document.getElementById('shipPhoneError').classList.remove('is-visible'); }
+
+      if(!shipZipVal){ shipZipEl.classList.add('has-error'); document.getElementById('shipZipError').classList.add('is-visible'); hasError = true; }
+      else { shipZipEl.classList.remove('has-error'); document.getElementById('shipZipError').classList.remove('is-visible'); }
+
+      if(!shipCityVal){ shipCityEl.classList.add('has-error'); document.getElementById('shipCityError').classList.add('is-visible'); hasError = true; }
+      else { shipCityEl.classList.remove('has-error'); document.getElementById('shipCityError').classList.remove('is-visible'); }
+
+      if(!shipAddressVal){ shipAddressEl.classList.add('has-error'); document.getElementById('shipAddressError').classList.add('is-visible'); hasError = true; }
+      else { shipAddressEl.classList.remove('has-error'); document.getElementById('shipAddressError').classList.remove('is-visible'); }
+
+      if(isAutomataSelected() && !foxpostAutomataVal){
+        foxpostAutomataEl.classList.add('has-error'); foxpostAutomataError.classList.add('is-visible'); hasError = true;
       } else {
         foxpostAutomataEl.classList.remove('has-error'); foxpostAutomataError.classList.remove('is-visible');
       }
-      if(shippingHasError){ shippingDetailsEl.open = true; hasError = true; }
-      if(hasError){ orderFeedback.classList.remove('is-visible'); return; }
-      if(!window.emailjs){
-        showFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be. Próbáld frissíteni az oldalt.', true); return;
+
+      if(hasError){
+        showFeedback("Kérjük, töltsd ki az összes kötelező mezőt!", true);
+        return;
       }
-      var totals   = recalcTotal();
-      var size     = getSizeInfo();
-      var color    = getFrameColor();
-      var shipping = getShippingInfo();
-      var payment  = getPaymentInfo();
-      var options  = getCheckedOptions();
-      var optionsText = options.length
-        ? options.map(function(o){ return o.name + ' (+' + formatHuf(o.price) + ')'; }).join(', ')
-        : 'Nincs kiválasztott kiegészítő';
+
       orderBtn.disabled = true;
-      orderFeedback.classList.remove('is-visible', 'is-error');
-      try{
-        orderBtn.textContent = 'Kép feltöltése folyamatban…';
+      showFeedback("Árajánlatkérés küldése folyamatban... Kérjük várj!", false);
+
+      try {
         var formData = new FormData();
-        formData.append('image', uploadedFile);
-        var uploadResponse = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY, { method:'POST', body:formData });
-        var uploadResult = await uploadResponse.json();
-        if(!uploadResult || !uploadResult.success){
-          var imgbbMsg = (uploadResult && uploadResult.error && uploadResult.error.message) || ('HTTP ' + uploadResponse.status);
-          throw new Error('A kép feltöltése sikertelen volt (' + imgbbMsg + ').');
-        }
-        var photoUrl = uploadResult.data.url;
-        orderBtn.textContent = 'Küldés folyamatban…';
+        formData.append("image", uploadedFile);
+        var imgbbRes = await fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, {
+          method: "POST",
+          body: formData
+        });
+        var imgbbData = await imgbbRes.json();
+        var imageUrl = (imgbbData && imgbbData.data) ? imgbbData.data.url : "Nem sikerült feltölteni a képet.";
+
+        var totals = recalcTotal();
+        var selectedOpts = getCheckedOptions().map(function(o){ return o.name; }).join(", ") || "Nincs";
+        var sizeInfo = getSizeInfo().label;
+        var colorInfo = getFrameColor();
+        var shippingInfo = getShippingInfo().label;
+        var paymentInfo = getPaymentInfo().label;
+
         var templateParams = {
-          name:            shipNameEl.value.trim(),
-          title:           "3D Memories megrendelés — " + size.label + " (" + formatHuf(totals.total) + ")",
-          customer_email:  emailVal,
-          frame_size:      size.label,
-          frame_color:     color,
-          options:         optionsText,
-          subtotal:        formatHuf(totals.subtotal),
-          discount_amount: totals.discount > 0 ? formatHuf(totals.discount) : 'Nincs',
-          coupon_code:     appliedCoupon ? appliedCoupon.code : 'Nincs',
-          total:           formatHuf(totals.total),
-          photo_name:      uploadedFile.name,
-          photo_url:       photoUrl,
-          custom_notes:    customNotesEl.value.trim() || 'Nincs egyedi kérés',
-          shipping_name:   shipNameEl.value.trim(),
-          shipping_phone:  shipPhoneEl.value.trim(),
-          shipping_zip:    shipZipEl.value.trim(),
-          shipping_city:   shipCityEl.value.trim(),
-          shipping_address:shipAddressEl.value.trim(),
-          shipping_method: shipping.label,
-          foxpost_automata:isAutomataSelected() ? foxpostAutomataEl.value.trim() : 'Nem releváns (házhozszállítás)',
-          payment_method:  payment.label
+          to_email: SHOP_EMAIL,
+          customer_email: emailVal,
+          customer_name: shipNameVal,
+          customer_phone: shipPhoneVal,
+          shipping_address: shipZipVal + " " + shipCityVal + ", " + shipAddressVal,
+          shipping_method: shippingInfo,
+          foxpost_automata: isAutomataSelected() ? foxpostAutomataVal : "-",
+          payment_method: paymentInfo,
+          frame_size: sizeInfo,
+          frame_color: colorInfo,
+          options: selectedOpts,
+          notes: customNotesEl.value.trim() || "-",
+          coupon_code: appliedCoupon ? appliedCoupon.code : "-",
+          total_price: formatHuf(totals.total),
+          image_url: imageUrl
         };
-        var customerParams = Object.assign({}, templateParams, { to_email: emailVal, reply_to: SHOP_EMAIL });
-        var shopParams     = Object.assign({}, templateParams, { to_email: SHOP_EMAIL, reply_to: emailVal });
-        await Promise.all([
-          emailjs.send(EMAILJS_SERVICE_ID, ORDER_TEMPLATE_ID, customerParams),
-          emailjs.send(EMAILJS_SERVICE_ID, ORDER_TEMPLATE_ID, shopParams)
-        ]);
-        orderBtn.textContent = 'Elküldve ✓';
-        showFeedback('Köszönjük! Az ajánlatkérésedet (' + formatHuf(totals.total) + ') megkaptuk, hamarosan válaszolunk.', false);
-        window.setTimeout(function(){ orderBtn.disabled = false; orderBtn.textContent = 'Ajánlatkérés elküldése'; }, 3200);
-      } catch(err){
-        console.error('Hiba a küldés során:', err);
-        orderBtn.disabled = false; orderBtn.textContent = 'Ajánlatkérés elküldése';
-        showFeedback('Sajnos nem sikerült elküldeni az ajánlatkérést: ' + (err.message || 'ismeretlen hiba') + '. Kérjük, próbáld újra.', true);
+
+        if(window.emailjs){
+          await emailjs.send(EMAILJS_SERVICE_ID, ORDER_TEMPLATE_ID, templateParams);
+        }
+        showFeedback("Köszönjük! Az árajánlatkérésed sikeresen elküldtük. Hamarosan keresni fogunk e-mailben!", false);
+      } catch(err) {
+        console.error(err);
+        showFeedback("Hiba történt a küldés során. Kérjük, próbáld újra később!", true);
+      } finally {
+        orderBtn.disabled = false;
       }
     });
 
-    /* ====== HÍRLEVÉL ====== */
-    var newsletterForm     = document.getElementById('newsletterForm');
-    var newsletterEmailEl  = document.getElementById('newsletterEmail');
-    var newsletterError    = document.getElementById('newsletterError');
-    var newsletterFeedback = document.getElementById('newsletterFeedback');
-    var newsletterBtn      = document.getElementById('newsletterBtn');
-    function showNewsletterFeedback(text, isError){
-      newsletterFeedback.textContent = text;
-      newsletterFeedback.classList.toggle('is-error', !!isError);
-      newsletterFeedback.classList.add('is-visible');
-    }
-    newsletterForm.addEventListener('submit', async function(e){
-      e.preventDefault();
-      var subscriberEmail = newsletterEmailEl.value.trim();
-      if(!isValidEmail(subscriberEmail)){
-        newsletterEmailEl.classList.add('has-error'); newsletterError.classList.add('is-visible');
-        newsletterFeedback.classList.remove('is-visible'); return;
-      }
-      newsletterEmailEl.classList.remove('has-error'); newsletterError.classList.remove('is-visible');
-      if(!window.emailjs){ showNewsletterFeedback('Hiba történt: az e-mail küldő szolgáltatás nem tölthető be.', true); return; }
-      newsletterBtn.disabled = true; newsletterBtn.textContent = 'Küldés…';
-      newsletterFeedback.classList.remove('is-visible', 'is-error');
-      try{
-        await emailjs.send(EMAILJS_SERVICE_ID, CONTACT_TEMPLATE_ID, {
-          action_type:'Hírlevél feliratkozás', user_email:subscriberEmail,
-          reviewer_name:'Nincs megadva', submission_date:new Date().toLocaleString('hu-HU'),
-          rating_value:'Nincs (csak feliratkozás)', review_text:'Nincs megadva vélemény.'
-        });
-        newsletterBtn.textContent = 'Feliratkoztál ✓';
-        showNewsletterFeedback('Köszönjük a feliratkozást! Mostantól elsőként értesülsz az újdonságainkról.', false);
-        newsletterEmailEl.value = '';
-        window.setTimeout(function(){ newsletterBtn.disabled = false; newsletterBtn.textContent = 'Feliratkozom'; }, 3200);
-      } catch(err){
-        newsletterBtn.disabled = false; newsletterBtn.textContent = 'Feliratkozom';
-        showNewsletterFeedback('Sajnos nem sikerült elküldeni a feliratkozást. Kérjük, próbáld újra.', true);
-      }
-    });
-
-    /* ====== VÉLEMÉNY BEKÜLDÉS ====== */
-    var starButtons       = document.querySelectorAll('.star-btn');
-    var starInputWrap     = document.getElementById('starInput');
+    /* ====== VÉLEMÉNY KÜLDÉS & HÍRLEVÉL ====== */
+    var starBtns = document.querySelectorAll('#starInput .star-btn');
     var reviewRatingInput = document.getElementById('reviewRating');
-    var reviewRatingError = document.getElementById('reviewRatingError');
-    var reviewNameEl      = document.getElementById('reviewName');
-    var reviewNameError   = document.getElementById('reviewNameError');
-    var reviewTextEl      = document.getElementById('reviewText');
-    var reviewTextError   = document.getElementById('reviewTextError');
-    var submitReviewBtn   = document.getElementById('submitReviewBtn');
-    var reviewFeedback    = document.getElementById('reviewFeedback');
+    var selectedRating = 0;
 
-    function paintStars(value){
-      starButtons.forEach(function(btn){
-        btn.classList.toggle('is-active', parseInt(btn.getAttribute('data-value'),10) <= value);
-      });
-    }
-    starButtons.forEach(function(btn){
+    starBtns.forEach(function(btn){
       btn.addEventListener('click', function(){
-        var v = parseInt(btn.getAttribute('data-value'),10);
-        reviewRatingInput.value = v; paintStars(v);
-        reviewRatingError.classList.remove('is-visible');
-      });
-      btn.addEventListener('mouseenter', function(){ paintStars(parseInt(btn.getAttribute('data-value'),10)); });
-    });
-    starInputWrap.addEventListener('mouseleave', function(){ paintStars(parseInt(reviewRatingInput.value,10)||0); });
-
-    function showReviewFeedback(text, isError){
-      reviewFeedback.textContent = text;
-      reviewFeedback.classList.toggle('is-error', !!isError);
-      reviewFeedback.classList.add('is-visible');
-    }
-    submitReviewBtn.addEventListener('click', async function(){
-      var hasError = false;
-      var rating = parseInt(reviewRatingInput.value,10)||0;
-      if(rating < 1){ reviewRatingError.classList.add('is-visible'); hasError = true; }
-      else { reviewRatingError.classList.remove('is-visible'); }
-      var nameVal = reviewNameEl.value.trim();
-      if(!nameVal){ reviewNameEl.classList.add('has-error'); reviewNameError.classList.add('is-visible'); hasError = true; }
-      else { reviewNameEl.classList.remove('has-error'); reviewNameError.classList.remove('is-visible'); }
-      var textVal = reviewTextEl.value.trim();
-      if(!textVal){ reviewTextEl.classList.add('has-error'); reviewTextError.classList.add('is-visible'); hasError = true; }
-      else { reviewTextEl.classList.remove('has-error'); reviewTextError.classList.remove('is-visible'); }
-      if(hasError){ reviewFeedback.classList.remove('is-visible'); return; }
-      if(!window.emailjs){ showReviewFeedback('Hiba történt: az e-mail küldő nem tölthető be.', true); return; }
-      submitReviewBtn.disabled = true; submitReviewBtn.textContent = 'Küldés…';
-      reviewFeedback.classList.remove('is-visible', 'is-error');
-      try{
-        await emailjs.send(EMAILJS_SERVICE_ID, CONTACT_TEMPLATE_ID, {
-          action_type:'Értékelés és vélemény', user_email:'Nincs megadva',
-          reviewer_name:nameVal, submission_date:new Date().toLocaleString('hu-HU'),
-          rating_value:rating + ' / 5 csillag', review_text:textVal
+        selectedRating = parseInt(btn.getAttribute('data-value'), 10);
+        reviewRatingInput.value = selectedRating;
+        starBtns.forEach(function(b, idx){
+          b.classList.toggle('is-active', idx < selectedRating);
         });
-        submitReviewBtn.textContent = 'Elküldve ✓';
-        showReviewFeedback('Köszönjük a véleményedet! Miután átnéztük, közzétesszük az oldalon.', false);
-        reviewNameEl.value = ''; reviewTextEl.value = ''; reviewRatingInput.value = '0'; paintStars(0);
-        window.setTimeout(function(){ submitReviewBtn.disabled = false; submitReviewBtn.textContent = 'Vélemény elküldése'; }, 3200);
-      } catch(err){
-        submitReviewBtn.disabled = false; submitReviewBtn.textContent = 'Vélemény elküldése';
-        showReviewFeedback('Sajnos nem sikerült elküldeni a véleményedet. Kérjük, próbáld újra.', true);
-      }
+      });
     });
+
+    var submitReviewBtn = document.getElementById('submitReviewBtn');
+    if(submitReviewBtn){
+      submitReviewBtn.addEventListener('click', async function(){
+        var rName = document.getElementById('reviewName').value.trim();
+        var rText = document.getElementById('reviewText').value.trim();
+        var rRating = parseInt(reviewRatingInput.value, 10);
+        var rErr = false;
+
+        if(!rRating){ document.getElementById('reviewRatingError').classList.add('is-visible'); rErr = true; }
+        else { document.getElementById('reviewRatingError').classList.remove('is-visible'); }
+
+        if(!rName){ document.getElementById('reviewName').value = ''; document.getElementById('reviewNameError').classList.add('is-visible'); rErr = true; }
+        else { document.getElementById('reviewNameError').classList.remove('is-visible'); }
+
+        if(!rText){ document.getElementById('reviewTextError').classList.add('is-visible'); rErr = true; }
+        else { document.getElementById('reviewTextError').classList.remove('is-visible'); }
+
+        if(rErr) return;
+
+        submitReviewBtn.disabled = true;
+        var rFb = document.getElementById('reviewFeedback');
+        rFb.textContent = "Vélemény elküldése...";
+        rFb.classList.remove('is-error');
+        rFb.classList.add('is-visible');
+
+        try {
+          if(window.emailjs){
+            await emailjs.send(EMAILJS_SERVICE_ID, CONTACT_TEMPLATE_ID, {
+              to_email: SHOP_EMAIL,
+              type: "Új vélemény",
+              name: rName,
+              rating: rRating + " / 5 csillag",
+              message: rText
+            });
+          }
+          rFb.textContent = "Köszönjük az értékelést! Átnézés után közzétesszük.";
+        } catch(err) {
+          rFb.textContent = "Hiba történt a vélemény elküldésekor.";
+          rFb.classList.add('is-error');
+        } finally {
+          submitReviewBtn.disabled = false;
+        }
+      });
+    }
+
+    var newsletterForm = document.getElementById('newsletterForm');
+    if(newsletterForm){
+      newsletterForm.addEventListener('submit', async function(e){
+        e.preventDefault();
+        var nlEmail = document.getElementById('newsletterEmail').value.trim();
+        var nlErr = document.getElementById('newsletterError');
+        var nlFb = document.getElementById('newsletterFeedback');
+        var nlBtn = document.getElementById('newsletterBtn');
+
+        if(!isValidEmail(nlEmail)){
+          nlErr.classList.add('is-visible');
+          return;
+        }
+        nlErr.classList.remove('is-visible');
+        nlBtn.disabled = true;
+        nlFb.textContent = "Feliratkozás...";
+        nlFb.classList.remove('is-error');
+        nlFb.classList.add('is-visible');
+
+        try {
+          if(window.emailjs){
+            await emailjs.send(EMAILJS_SERVICE_ID, CONTACT_TEMPLATE_ID, {
+              to_email: SHOP_EMAIL,
+              type: "Hírlevél feliratkozás",
+              email: nlEmail
+            });
+          }
+          nlFb.textContent = "Sikeres feliratkozás! Köszönjük!";
+        } catch(err) {
+          nlFb.textContent = "Hiba történt a feliratkozás során.";
+          nlFb.classList.add('is-error');
+        } finally {
+          nlBtn.disabled = false;
+        }
+      });
+    }
 
   })();
   </script>
-
 </body>
 </html>
